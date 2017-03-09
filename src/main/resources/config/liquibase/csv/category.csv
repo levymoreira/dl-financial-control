@@ -1,0 +1,43 @@
+id;user_id;owner_id;transaction_type;description
+115;1;null;INPUT;Benefício
+116;1;null;INPUT;Investimento
+117;1;null;INPUT;Renda Assalariada
+118;1;null;OUTPUT;Alimentação
+119;1;null;OUTPUT;Comunicação
+120;1;null;OUTPUT;Desconto na Fonte
+121;1;null;OUTPUT;Educação
+122;1;null;OUTPUT;Lazer
+123;1;null;OUTPUT;Moradia
+124;1;null;OUTPUT;Transporte
+125;1;115;INPUT;Vale Alimentação
+126;1;115;INPUT;Auxílio Creche
+127;1;116;INPUT;Cupom/Juros
+128;1;116;INPUT;Dividendos
+129;1;116;INPUT;Resgate
+130;1;117;INPUT;Descanso Remunerado
+131;1;117;INPUT;Salário Bruto
+132;1;117;INPUT;Salário 13o
+133;1;118;OUTPUT;Lanche
+134;1;118;OUTPUT;Restaurante
+135;1;118;OUTPUT;Supermercado
+136;1;119;OUTPUT;Internet
+137;1;119;OUTPUT;Telefone Celular
+138;1;119;OUTPUT;Telefone Fixo
+139;1;120;OUTPUT;INSS
+140;1;120;OUTPUT;IRPF
+141;1;121;OUTPUT;Cursos e Treinamentos
+142;1;121;OUTPUT;Material de Estudo
+143;1;121;OUTPUT;Vale Universidade / Faculdade
+144;1;122;OUTPUT;Hospedagem
+145;1;122;OUTPUT;Livros
+146;1;122;OUTPUT;Parques e Afins
+147;1;123;OUTPUT;Água e Esgoto
+148;1;123;OUTPUT;Aluguel
+149;1;123;OUTPUT;Condomínio
+150;1;123;OUTPUT;Energia Elétrica
+151;1;123;OUTPUT;Gás
+152;1;123;OUTPUT;Manutenção Imóvel
+153;1;123;OUTPUT;Mobiliário
+154;1;124;OUTPUT;Combustível
+155;1;124;OUTPUT;Estacionamento
+156;1;124;OUTPUT;Táxi

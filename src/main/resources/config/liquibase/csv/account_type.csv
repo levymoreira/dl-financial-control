@@ -1,0 +1,6 @@
+id;description;code
+1;Caixa / Dinheiro;CAIXA
+2;Conta Corrente;CORRENTE
+3;Conta Poupança;POUPANCA
+4;Cartão de Crédito;CARTAOCREDITO
+5;Conta Investimento;INVESTIMENTO
