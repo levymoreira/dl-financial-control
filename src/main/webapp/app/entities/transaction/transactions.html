@@ -1,0 +1,121 @@
+<div>
+    <h2 data-translate="dlFinancialControlApp.transaction.home.title">Transactions</h2>
+    <jhi-alert></jhi-alert>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-4 no-padding-left">
+                <button class="btn btn-primary" ui-sref="transaction.new" >
+                    <span class="glyphicon glyphicon-plus"></span>
+                    <span class="hidden-xs-down"  data-translate="dlFinancialControlApp.transaction.home.createLabel">
+                        Create new Transaction
+                    </span>
+                </button>
+            </div>
+            <div class="col-xs-8 no-padding-right">
+                <form name="searchForm" class="form-inline">
+                    <div class="input-group pull-right" >
+                        <input type="text" class="form-control" ng-model="vm.searchQuery" id="searchQuery" placeholder="{{ 'dlFinancialControlApp.transaction.home.search' | translate }}">
+                        <span  class="input-group-btn width-min" >
+                            <button class="btn btn-info" ng-click="vm.search(vm.searchQuery)">
+                                <span class="glyphicon glyphicon-search"></span>
+                            </button>
+                        </span>
+                        <span class="input-group-btn width-min" ng-if="vm.currentSearch">
+                            <button class="btn btn-info" ng-click="vm.clear()">
+                                <span class="glyphicon glyphicon-trash"></span>
+                            </button>
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <div class="table-responsive">
+        <table class="jh-table table table-striped">
+            <thead>
+                <tr>
+                    <th><span data-translate="global.field.id">ID</span></th>
+                    <th><span data-translate="dlFinancialControlApp.transaction.transactionType">Transaction Type</span></th>
+                    <th><span data-translate="dlFinancialControlApp.transaction.date">Date</span></th>
+                    <th><span data-translate="dlFinancialControlApp.transaction.ordination">Ordination</span></th>
+                    <th><span data-translate="dlFinancialControlApp.transaction.number">Number</span></th>
+                    <th><span data-translate="dlFinancialControlApp.transaction.description">Description</span></th>
+                    <th><span data-translate="dlFinancialControlApp.transaction.additionalInfo">Additional Info</span></th>
+                    <th><span data-translate="dlFinancialControlApp.transaction.amount">Amount</span></th>
+                    <th><span data-translate="dlFinancialControlApp.transaction.isDivided">Is Divided</span></th>
+                    <th><span data-translate="dlFinancialControlApp.transaction.isTransfer">Is Transfer</span></th>
+                    <th><span data-translate="dlFinancialControlApp.transaction.user">User</span></th>
+                    <th><span data-translate="dlFinancialControlApp.transaction.installmentGroup">Installment Group</span></th>
+                    <th><span data-translate="dlFinancialControlApp.transaction.creditCardInvoice">Credit Card Invoice</span></th>
+                    <th><span data-translate="dlFinancialControlApp.transaction.owner">Owner</span></th>
+                    <th><span data-translate="dlFinancialControlApp.transaction.source">Source</span></th>
+                    <th><span data-translate="dlFinancialControlApp.transaction.category">Category</span></th>
+                    <th><span data-translate="dlFinancialControlApp.transaction.client">Client</span></th>
+                    <th><span data-translate="dlFinancialControlApp.transaction.account">Account</span></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="transaction in vm.transactions track by transaction.id">
+                    <td><a ui-sref="transaction-detail({id:transaction.id})">{{transaction.id}}</a></td>
+                    <td data-translate="{{'dlFinancialControlApp.TransactionType.' + transaction.transactionType}}">{{transaction.transactionType}}</td>
+                    <td>{{transaction.date | date:'medium'}}</td>
+                    <td>{{transaction.ordination}}</td>
+                    <td>{{transaction.number}}</td>
+                    <td>{{transaction.description}}</td>
+                    <td>{{transaction.additionalInfo}}</td>
+                    <td>{{transaction.amount}}</td>
+                    <td>{{transaction.isDivided}}</td>
+                    <td>{{transaction.isTransfer}}</td>
+                    <td>
+                        {{transaction.user.id}}
+                    </td>
+                    <td>
+                        <a ui-sref="installment-group-detail({id:transaction.installmentGroup.id})">{{transaction.installmentGroup.id}}</a>
+                    </td>
+                    <td>
+                        <a ui-sref="credit-card-invoice-detail({id:transaction.creditCardInvoice.id})">{{transaction.creditCardInvoice.id}}</a>
+                    </td>
+                    <td>
+                        <a ui-sref="transaction-detail({id:transaction.owner.id})">{{transaction.owner.id}}</a>
+                    </td>
+                    <td>
+                        <a ui-sref="transaction-detail({id:transaction.source.id})">{{transaction.source.id}}</a>
+                    </td>
+                    <td>
+                        <a ui-sref="category-detail({id:transaction.category.id})">{{transaction.category.id}}</a>
+                    </td>
+                    <td>
+                        <a ui-sref="client-detail({id:transaction.client.id})">{{transaction.client.id}}</a>
+                    </td>
+                    <td>
+                        <a ui-sref="account-name-detail({id:transaction.account.id})">{{transaction.account.id}}</a>
+                    </td>
+                    <td class="text-right">
+                        <div class="btn-group flex-btn-group-container">
+                            <button type="submit"
+                                    ui-sref="transaction-detail({id:transaction.id})"
+                                    class="btn btn-info btn-sm">
+                                <span class="glyphicon glyphicon-eye-open"></span>
+                                <span class="hidden-sm-down" data-translate="entity.action.view"></span>
+                            </button>
+                            <button type="submit"
+                                    ui-sref="transaction.edit({id:transaction.id})"
+                                    class="btn btn-primary btn-sm">
+                                <span class="glyphicon glyphicon-pencil"></span>
+                                <span class="hidden-sm-down" data-translate="entity.action.edit"></span>
+                            </button>
+                            <button type="submit"
+                                    ui-sref="transaction.delete({id:transaction.id})"
+                                    class="btn btn-danger btn-sm">
+                                <span class="glyphicon glyphicon-remove-circle"></span>
+                                <span class="hidden-sm-down" data-translate="entity.action.delete"></span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

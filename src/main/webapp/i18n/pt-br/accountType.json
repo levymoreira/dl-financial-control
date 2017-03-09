@@ -1,0 +1,23 @@
+{
+    "dlFinancialControlApp": {
+        "accountType" : {
+            "home": {
+                "title": "Account Types",
+                "createLabel": "Criar novo Account Type",
+                "createOrEditLabel": "Criar ou editar Account Type",
+                "search": "Pesquisar por Account Type"
+            },
+            "created": "Um novo Account Type é criado com o identificador {{ param }}",
+            "updated": "Um Account Type é atualizado com o identificador {{ param }}",
+            "deleted": "Um Account Type é deletado com o identificador {{ param }}",
+            "delete": {
+                "question": "Tem certeza de que deseja excluir Account Type {{ id }}?"
+            },
+            "detail": {
+                "title": "Account Type"
+            },
+            "description": "Description",
+            "code": "Code"
+        }
+    }
+}

@@ -1,0 +1,38 @@
+{
+    "dlFinancialControlApp": {
+        "transaction" : {
+            "home": {
+                "title": "Transactions",
+                "createLabel": "Criar novo Transaction",
+                "createOrEditLabel": "Criar ou editar Transaction",
+                "search": "Pesquisar por Transaction"
+            },
+            "created": "Um novo Transaction é criado com o identificador {{ param }}",
+            "updated": "Um Transaction é atualizado com o identificador {{ param }}",
+            "deleted": "Um Transaction é deletado com o identificador {{ param }}",
+            "delete": {
+                "question": "Tem certeza de que deseja excluir Transaction {{ id }}?"
+            },
+            "detail": {
+                "title": "Transaction"
+            },
+            "transactionType": "Transaction Type",
+            "date": "Date",
+            "ordination": "Ordination",
+            "number": "Number",
+            "description": "Description",
+            "additionalInfo": "Additional Info",
+            "amount": "Amount",
+            "isDivided": "Is Divided",
+            "isTransfer": "Is Transfer",
+            "user": "User",
+            "installmentGroup": "Installment Group",
+            "creditCardInvoice": "Credit Card Invoice",
+            "owner": "Owner",
+            "source": "Source",
+            "category": "Category",
+            "client": "Client",
+            "account": "Account"
+        }
+    }
+}

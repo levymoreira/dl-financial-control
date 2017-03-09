@@ -1,0 +1,17 @@
+Server application generated successfully.
+
+Run your Spring Boot application:
+ ./gradlew
+
+Client application generated successfully.
+
+Inject your front end dependencies into your source code:
+ gulp inject
+
+Generate the AngularJS constants:
+ gulp ngconstant:dev
+
+Or do all of the above:
+ gulp install
+
+

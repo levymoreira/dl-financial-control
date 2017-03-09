@@ -1,0 +1,24 @@
+{
+    "dlFinancialControlApp": {
+        "creditCardInvoice" : {
+            "home": {
+                "title": "Credit Card Invoices",
+                "createLabel": "Create a new Credit Card Invoice",
+                "createOrEditLabel": "Create or edit a Credit Card Invoice",
+                "search": "Search for Credit Card Invoice"
+            },
+            "created": "A new Credit Card Invoice is created with identifier {{ param }}",
+            "updated": "A Credit Card Invoice is updated with identifier {{ param }}",
+            "deleted": "A Credit Card Invoice is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Credit Card Invoice {{ id }}?"
+            },
+            "detail": {
+                "title": "Credit Card Invoice"
+            },
+            "year": "Year",
+            "month": "Month",
+            "account": "Account"
+        }
+    }
+}

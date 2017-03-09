@@ -1,0 +1,24 @@
+{
+    "dlFinancialControlApp": {
+        "accountName" : {
+            "home": {
+                "title": "Account Names",
+                "createLabel": "Criar novo Account Name",
+                "createOrEditLabel": "Criar ou editar Account Name",
+                "search": "Pesquisar por Account Name"
+            },
+            "created": "Um novo Account Name é criado com o identificador {{ param }}",
+            "updated": "Um Account Name é atualizado com o identificador {{ param }}",
+            "deleted": "Um Account Name é deletado com o identificador {{ param }}",
+            "delete": {
+                "question": "Tem certeza de que deseja excluir Account Name {{ id }}?"
+            },
+            "detail": {
+                "title": "Account Name"
+            },
+            "description": "Description",
+            "user": "User",
+            "accountType": "Account Type"
+        }
+    }
+}

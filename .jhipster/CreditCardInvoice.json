@@ -1,0 +1,26 @@
+{
+    "fluentMethods": true,
+    "relationships": [
+        {
+            "relationshipType": "many-to-one",
+            "relationshipName": "account",
+            "otherEntityName": "accountName",
+            "otherEntityField": "id"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "year",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "month",
+            "fieldType": "Integer"
+        }
+    ],
+    "changelogDate": "20170309203729",
+    "entityTableName": "credit_card_invoice",
+    "dto": "no",
+    "pagination": "no",
+    "service": "no"
+}

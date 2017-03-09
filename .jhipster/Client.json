@@ -1,0 +1,26 @@
+{
+    "fluentMethods": true,
+    "relationships": [
+        {
+            "relationshipType": "many-to-one",
+            "relationshipName": "user",
+            "otherEntityName": "user",
+            "otherEntityField": "id"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "name",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "additionalInfo",
+            "fieldType": "String"
+        }
+    ],
+    "changelogDate": "20170309203729",
+    "entityTableName": "client",
+    "dto": "no",
+    "pagination": "no",
+    "service": "no"
+}

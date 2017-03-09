@@ -1,0 +1,26 @@
+{
+    "dlFinancialControlApp": {
+        "installmentGroup" : {
+            "home": {
+                "title": "Installment Groups",
+                "createLabel": "Criar novo Installment Group",
+                "createOrEditLabel": "Criar ou editar Installment Group",
+                "search": "Pesquisar por Installment Group"
+            },
+            "created": "Um novo Installment Group é criado com o identificador {{ param }}",
+            "updated": "Um Installment Group é atualizado com o identificador {{ param }}",
+            "deleted": "Um Installment Group é deletado com o identificador {{ param }}",
+            "delete": {
+                "question": "Tem certeza de que deseja excluir Installment Group {{ id }}?"
+            },
+            "detail": {
+                "title": "Installment Group"
+            },
+            "date": "Date",
+            "description": "Description",
+            "installments": "Installments",
+            "amount": "Amount",
+            "account": "Account"
+        }
+    }
+}

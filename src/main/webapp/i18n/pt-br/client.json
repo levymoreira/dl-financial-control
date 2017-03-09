@@ -1,0 +1,24 @@
+{
+    "dlFinancialControlApp": {
+        "client" : {
+            "home": {
+                "title": "Clients",
+                "createLabel": "Criar novo Client",
+                "createOrEditLabel": "Criar ou editar Client",
+                "search": "Pesquisar por Client"
+            },
+            "created": "Um novo Client é criado com o identificador {{ param }}",
+            "updated": "Um Client é atualizado com o identificador {{ param }}",
+            "deleted": "Um Client é deletado com o identificador {{ param }}",
+            "delete": {
+                "question": "Tem certeza de que deseja excluir Client {{ id }}?"
+            },
+            "detail": {
+                "title": "Client"
+            },
+            "name": "Name",
+            "additionalInfo": "Additional Info",
+            "user": "User"
+        }
+    }
+}

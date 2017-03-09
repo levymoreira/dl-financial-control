@@ -1,0 +1,39 @@
+
+<div>
+    <h2><span data-translate="dlFinancialControlApp.installmentGroup.detail.title">Installment Group</span> {{vm.installmentGroup.id}}</h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="row jh-entity-details">
+        <dt><span data-translate="dlFinancialControlApp.installmentGroup.date">Date</span></dt>
+        <dd>
+            <span>{{vm.installmentGroup.date | date:'medium'}}</span>
+        </dd>
+        <dt><span data-translate="dlFinancialControlApp.installmentGroup.description">Description</span></dt>
+        <dd>
+            <span>{{vm.installmentGroup.description}}</span>
+        </dd>
+        <dt><span data-translate="dlFinancialControlApp.installmentGroup.installments">Installments</span></dt>
+        <dd>
+            <span>{{vm.installmentGroup.installments}}</span>
+        </dd>
+        <dt><span data-translate="dlFinancialControlApp.installmentGroup.amount">Amount</span></dt>
+        <dd>
+            <span>{{vm.installmentGroup.amount}}</span>
+        </dd>
+        <dt><span data-translate="dlFinancialControlApp.installmentGroup.account">Account</span></dt>
+        <dd>
+            <a ui-sref="account-name-detail({id:vm.installmentGroup.account.id})">{{vm.installmentGroup.account.id}}</a>
+        </dd>
+    </dl>
+
+    <button type="submit"
+            ui-sref="{{ vm.previousState }}"
+            class="btn btn-info">
+        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span data-translate="entity.action.back"> Back</span>
+    </button>
+
+    <button type="button" ui-sref="installment-group-detail.edit({id:vm.installmentGroup.id})" class="btn btn-primary">
+        <span class="glyphicon glyphicon-pencil"></span>
+        <span class="hidden-sm-down" data-translate="entity.action.edit"> Edit</span>
+    </button>
+</div>

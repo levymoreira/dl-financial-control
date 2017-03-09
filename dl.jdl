@@ -1,0 +1,72 @@
+//yo jhipster:import-jdl ./ignored/dl.jdl
+enum TransactionType {
+    INPUT,
+    OUTPUT
+}
+
+entity Category {
+    transactionType TransactionType,
+    description String
+}
+
+entity AccountName {
+    description String
+}
+
+entity CreditCardInvoice {
+    year Integer,
+    month Integer
+}
+
+entity Client {
+    name String,
+    additionalInfo String
+}
+
+entity Transaction {
+    transactionType TransactionType,
+    date ZonedDateTime,
+    ordination Integer,
+    number String,
+    description String,
+    additionalInfo String,
+    amount BigDecimal,
+    isDivided Boolean,
+    isTransfer Boolean
+}
+
+entity AccountType {
+    description String,
+    code String
+}
+
+entity InstallmentGroup {
+    date ZonedDateTime,
+    description String,
+    installments Integer,
+    amount BigDecimal,
+}
+
+relationship ManyToOne {
+    Category{owner} to Category,
+
+    Transaction{user} to User,
+    AccountName{user} to User,
+    Category{user} to User,
+    Client{user} to User,
+
+    AccountName{accountType} to AccountType,
+
+    InstallmentGroup{account} to AccountName,
+
+    Transaction{installmentGroup} to InstallmentGroup,
+    Transaction{creditCardInvoice} to CreditCardInvoice,
+    Transaction{owner} to Transaction,
+    Transaction{source} to Transaction,
+    Transaction{category} to Category,
+    Transaction{client} to Client,
+    Transaction{account} to AccountName,
+
+    CreditCardInvoice{account} to AccountName
+}
+
