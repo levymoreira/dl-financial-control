@@ -4,8 +4,7 @@
             "home": {
                 "title": "Clients",
                 "createLabel": "Create a new Client",
-                "createOrEditLabel": "Create or edit a Client",
-                "search": "Search for Client"
+                "createOrEditLabel": "Create or edit a Client"
             },
             "created": "A new Client is created with identifier {{ param }}",
             "updated": "A Client is updated with identifier {{ param }}",

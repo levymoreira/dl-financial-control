@@ -4,7 +4,6 @@ import com.levymoreira.DlFinancialControlApp;
 
 import com.levymoreira.domain.Client;
 import com.levymoreira.repository.ClientRepository;
-import com.levymoreira.repository.search.ClientSearchRepository;
 import com.levymoreira.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -48,9 +47,6 @@ public class ClientResourceIntTest {
     private ClientRepository clientRepository;
 
     @Autowired
-    private ClientSearchRepository clientSearchRepository;
-
-    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -69,7 +65,7 @@ public class ClientResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-            ClientResource clientResource = new ClientResource(clientRepository, clientSearchRepository);
+        ClientResource clientResource = new ClientResource(clientRepository);
         this.restClientMockMvc = MockMvcBuilders.standaloneSetup(clientResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -84,14 +80,13 @@ public class ClientResourceIntTest {
      */
     public static Client createEntity(EntityManager em) {
         Client client = new Client()
-                .name(DEFAULT_NAME)
-                .additionalInfo(DEFAULT_ADDITIONAL_INFO);
+            .name(DEFAULT_NAME)
+            .additionalInfo(DEFAULT_ADDITIONAL_INFO);
         return client;
     }
 
     @Before
     public void initTest() {
-        clientSearchRepository.deleteAll();
         client = createEntity(em);
     }
 
@@ -101,7 +96,6 @@ public class ClientResourceIntTest {
         int databaseSizeBeforeCreate = clientRepository.findAll().size();
 
         // Create the Client
-
         restClientMockMvc.perform(post("/api/clients")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(client)))
@@ -113,10 +107,6 @@ public class ClientResourceIntTest {
         Client testClient = clientList.get(clientList.size() - 1);
         assertThat(testClient.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testClient.getAdditionalInfo()).isEqualTo(DEFAULT_ADDITIONAL_INFO);
-
-        // Validate the Client in Elasticsearch
-        Client clientEs = clientSearchRepository.findOne(testClient.getId());
-        assertThat(clientEs).isEqualToComparingFieldByField(testClient);
     }
 
     @Test
@@ -125,13 +115,12 @@ public class ClientResourceIntTest {
         int databaseSizeBeforeCreate = clientRepository.findAll().size();
 
         // Create the Client with an existing ID
-        Client existingClient = new Client();
-        existingClient.setId(1L);
+        client.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restClientMockMvc.perform(post("/api/clients")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(existingClient)))
+            .content(TestUtil.convertObjectToJsonBytes(client)))
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
@@ -182,14 +171,13 @@ public class ClientResourceIntTest {
     public void updateClient() throws Exception {
         // Initialize the database
         clientRepository.saveAndFlush(client);
-        clientSearchRepository.save(client);
         int databaseSizeBeforeUpdate = clientRepository.findAll().size();
 
         // Update the client
         Client updatedClient = clientRepository.findOne(client.getId());
         updatedClient
-                .name(UPDATED_NAME)
-                .additionalInfo(UPDATED_ADDITIONAL_INFO);
+            .name(UPDATED_NAME)
+            .additionalInfo(UPDATED_ADDITIONAL_INFO);
 
         restClientMockMvc.perform(put("/api/clients")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -202,10 +190,6 @@ public class ClientResourceIntTest {
         Client testClient = clientList.get(clientList.size() - 1);
         assertThat(testClient.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testClient.getAdditionalInfo()).isEqualTo(UPDATED_ADDITIONAL_INFO);
-
-        // Validate the Client in Elasticsearch
-        Client clientEs = clientSearchRepository.findOne(testClient.getId());
-        assertThat(clientEs).isEqualToComparingFieldByField(testClient);
     }
 
     @Test
@@ -231,17 +215,12 @@ public class ClientResourceIntTest {
     public void deleteClient() throws Exception {
         // Initialize the database
         clientRepository.saveAndFlush(client);
-        clientSearchRepository.save(client);
         int databaseSizeBeforeDelete = clientRepository.findAll().size();
 
         // Get the client
         restClientMockMvc.perform(delete("/api/clients/{id}", client.getId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
-
-        // Validate Elasticsearch is empty
-        boolean clientExistsInEs = clientSearchRepository.exists(client.getId());
-        assertThat(clientExistsInEs).isFalse();
 
         // Validate the database is empty
         List<Client> clientList = clientRepository.findAll();
@@ -250,21 +229,6 @@ public class ClientResourceIntTest {
 
     @Test
     @Transactional
-    public void searchClient() throws Exception {
-        // Initialize the database
-        clientRepository.saveAndFlush(client);
-        clientSearchRepository.save(client);
-
-        // Search the client
-        restClientMockMvc.perform(get("/api/_search/clients?query=id:" + client.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(client.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
-            .andExpect(jsonPath("$.[*].additionalInfo").value(hasItem(DEFAULT_ADDITIONAL_INFO.toString())));
-    }
-
-    @Test
     public void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(Client.class);
     }

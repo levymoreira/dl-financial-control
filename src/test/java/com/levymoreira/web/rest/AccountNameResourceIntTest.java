@@ -4,7 +4,6 @@ import com.levymoreira.DlFinancialControlApp;
 
 import com.levymoreira.domain.AccountName;
 import com.levymoreira.repository.AccountNameRepository;
-import com.levymoreira.repository.search.AccountNameSearchRepository;
 import com.levymoreira.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -45,9 +44,6 @@ public class AccountNameResourceIntTest {
     private AccountNameRepository accountNameRepository;
 
     @Autowired
-    private AccountNameSearchRepository accountNameSearchRepository;
-
-    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -66,7 +62,7 @@ public class AccountNameResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-            AccountNameResource accountNameResource = new AccountNameResource(accountNameRepository, accountNameSearchRepository);
+        AccountNameResource accountNameResource = new AccountNameResource(accountNameRepository);
         this.restAccountNameMockMvc = MockMvcBuilders.standaloneSetup(accountNameResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -81,13 +77,12 @@ public class AccountNameResourceIntTest {
      */
     public static AccountName createEntity(EntityManager em) {
         AccountName accountName = new AccountName()
-                .description(DEFAULT_DESCRIPTION);
+            .description(DEFAULT_DESCRIPTION);
         return accountName;
     }
 
     @Before
     public void initTest() {
-        accountNameSearchRepository.deleteAll();
         accountName = createEntity(em);
     }
 
@@ -97,7 +92,6 @@ public class AccountNameResourceIntTest {
         int databaseSizeBeforeCreate = accountNameRepository.findAll().size();
 
         // Create the AccountName
-
         restAccountNameMockMvc.perform(post("/api/account-names")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(accountName)))
@@ -108,10 +102,6 @@ public class AccountNameResourceIntTest {
         assertThat(accountNameList).hasSize(databaseSizeBeforeCreate + 1);
         AccountName testAccountName = accountNameList.get(accountNameList.size() - 1);
         assertThat(testAccountName.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
-
-        // Validate the AccountName in Elasticsearch
-        AccountName accountNameEs = accountNameSearchRepository.findOne(testAccountName.getId());
-        assertThat(accountNameEs).isEqualToComparingFieldByField(testAccountName);
     }
 
     @Test
@@ -120,13 +110,12 @@ public class AccountNameResourceIntTest {
         int databaseSizeBeforeCreate = accountNameRepository.findAll().size();
 
         // Create the AccountName with an existing ID
-        AccountName existingAccountName = new AccountName();
-        existingAccountName.setId(1L);
+        accountName.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restAccountNameMockMvc.perform(post("/api/account-names")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(existingAccountName)))
+            .content(TestUtil.convertObjectToJsonBytes(accountName)))
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
@@ -175,13 +164,12 @@ public class AccountNameResourceIntTest {
     public void updateAccountName() throws Exception {
         // Initialize the database
         accountNameRepository.saveAndFlush(accountName);
-        accountNameSearchRepository.save(accountName);
         int databaseSizeBeforeUpdate = accountNameRepository.findAll().size();
 
         // Update the accountName
         AccountName updatedAccountName = accountNameRepository.findOne(accountName.getId());
         updatedAccountName
-                .description(UPDATED_DESCRIPTION);
+            .description(UPDATED_DESCRIPTION);
 
         restAccountNameMockMvc.perform(put("/api/account-names")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -193,10 +181,6 @@ public class AccountNameResourceIntTest {
         assertThat(accountNameList).hasSize(databaseSizeBeforeUpdate);
         AccountName testAccountName = accountNameList.get(accountNameList.size() - 1);
         assertThat(testAccountName.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
-
-        // Validate the AccountName in Elasticsearch
-        AccountName accountNameEs = accountNameSearchRepository.findOne(testAccountName.getId());
-        assertThat(accountNameEs).isEqualToComparingFieldByField(testAccountName);
     }
 
     @Test
@@ -222,17 +206,12 @@ public class AccountNameResourceIntTest {
     public void deleteAccountName() throws Exception {
         // Initialize the database
         accountNameRepository.saveAndFlush(accountName);
-        accountNameSearchRepository.save(accountName);
         int databaseSizeBeforeDelete = accountNameRepository.findAll().size();
 
         // Get the accountName
         restAccountNameMockMvc.perform(delete("/api/account-names/{id}", accountName.getId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
-
-        // Validate Elasticsearch is empty
-        boolean accountNameExistsInEs = accountNameSearchRepository.exists(accountName.getId());
-        assertThat(accountNameExistsInEs).isFalse();
 
         // Validate the database is empty
         List<AccountName> accountNameList = accountNameRepository.findAll();
@@ -241,20 +220,6 @@ public class AccountNameResourceIntTest {
 
     @Test
     @Transactional
-    public void searchAccountName() throws Exception {
-        // Initialize the database
-        accountNameRepository.saveAndFlush(accountName);
-        accountNameSearchRepository.save(accountName);
-
-        // Search the accountName
-        restAccountNameMockMvc.perform(get("/api/_search/account-names?query=id:" + accountName.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(accountName.getId().intValue())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())));
-    }
-
-    @Test
     public void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(AccountName.class);
     }

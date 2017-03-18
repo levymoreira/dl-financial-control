@@ -2,7 +2,6 @@ package com.levymoreira.domain;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.springframework.data.elasticsearch.annotations.Document;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -16,7 +15,6 @@ import com.levymoreira.domain.enumeration.TransactionType;
 @Entity
 @Table(name = "category")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@Document(indexName = "category")
 public class Category implements Serializable {
 
     private static final long serialVersionUID = 1L;

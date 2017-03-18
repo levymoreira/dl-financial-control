@@ -4,8 +4,7 @@
             "home": {
                 "title": "Account Names",
                 "createLabel": "Criar novo Account Name",
-                "createOrEditLabel": "Criar ou editar Account Name",
-                "search": "Pesquisar por Account Name"
+                "createOrEditLabel": "Criar ou editar Account Name"
             },
             "created": "Um novo Account Name é criado com o identificador {{ param }}",
             "updated": "Um Account Name é atualizado com o identificador {{ param }}",

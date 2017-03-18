@@ -4,7 +4,6 @@ import com.codahale.metrics.annotation.Timed;
 import com.levymoreira.domain.InstallmentGroup;
 
 import com.levymoreira.repository.InstallmentGroupRepository;
-import com.levymoreira.repository.search.InstallmentGroupSearchRepository;
 import com.levymoreira.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -16,10 +15,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing InstallmentGroup.
@@ -34,11 +29,8 @@ public class InstallmentGroupResource {
         
     private final InstallmentGroupRepository installmentGroupRepository;
 
-    private final InstallmentGroupSearchRepository installmentGroupSearchRepository;
-
-    public InstallmentGroupResource(InstallmentGroupRepository installmentGroupRepository, InstallmentGroupSearchRepository installmentGroupSearchRepository) {
+    public InstallmentGroupResource(InstallmentGroupRepository installmentGroupRepository) {
         this.installmentGroupRepository = installmentGroupRepository;
-        this.installmentGroupSearchRepository = installmentGroupSearchRepository;
     }
 
     /**
@@ -56,7 +48,6 @@ public class InstallmentGroupResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new installmentGroup cannot already have an ID")).body(null);
         }
         InstallmentGroup result = installmentGroupRepository.save(installmentGroup);
-        installmentGroupSearchRepository.save(result);
         return ResponseEntity.created(new URI("/api/installment-groups/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -79,7 +70,6 @@ public class InstallmentGroupResource {
             return createInstallmentGroup(installmentGroup);
         }
         InstallmentGroup result = installmentGroupRepository.save(installmentGroup);
-        installmentGroupSearchRepository.save(result);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, installmentGroup.getId().toString()))
             .body(result);
@@ -123,25 +113,7 @@ public class InstallmentGroupResource {
     public ResponseEntity<Void> deleteInstallmentGroup(@PathVariable Long id) {
         log.debug("REST request to delete InstallmentGroup : {}", id);
         installmentGroupRepository.delete(id);
-        installmentGroupSearchRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
-
-    /**
-     * SEARCH  /_search/installment-groups?query=:query : search for the installmentGroup corresponding
-     * to the query.
-     *
-     * @param query the query of the installmentGroup search 
-     * @return the result of the search
-     */
-    @GetMapping("/_search/installment-groups")
-    @Timed
-    public List<InstallmentGroup> searchInstallmentGroups(@RequestParam String query) {
-        log.debug("REST request to search InstallmentGroups for query {}", query);
-        return StreamSupport
-            .stream(installmentGroupSearchRepository.search(queryStringQuery(query)).spliterator(), false)
-            .collect(Collectors.toList());
-    }
-
 
 }

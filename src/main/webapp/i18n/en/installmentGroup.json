@@ -4,8 +4,7 @@
             "home": {
                 "title": "Installment Groups",
                 "createLabel": "Create a new Installment Group",
-                "createOrEditLabel": "Create or edit a Installment Group",
-                "search": "Search for Installment Group"
+                "createOrEditLabel": "Create or edit a Installment Group"
             },
             "created": "A new Installment Group is created with identifier {{ param }}",
             "updated": "A Installment Group is updated with identifier {{ param }}",

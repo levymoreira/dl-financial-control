@@ -4,8 +4,7 @@
             "home": {
                 "title": "Account Names",
                 "createLabel": "Create a new Account Name",
-                "createOrEditLabel": "Create or edit a Account Name",
-                "search": "Search for Account Name"
+                "createOrEditLabel": "Create or edit a Account Name"
             },
             "created": "A new Account Name is created with identifier {{ param }}",
             "updated": "A Account Name is updated with identifier {{ param }}",

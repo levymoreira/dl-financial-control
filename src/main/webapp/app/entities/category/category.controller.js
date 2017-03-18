@@ -5,16 +5,13 @@
         .module('dlFinancialControlApp')
         .controller('CategoryController', CategoryController);
 
-    CategoryController.$inject = ['Category', 'CategorySearch'];
+    CategoryController.$inject = ['Category'];
 
-    function CategoryController(Category, CategorySearch) {
+    function CategoryController(Category) {
 
         var vm = this;
 
         vm.categories = [];
-        vm.clear = clear;
-        vm.search = search;
-        vm.loadAll = loadAll;
 
         loadAll();
 
@@ -24,19 +21,5 @@
                 vm.searchQuery = null;
             });
         }
-
-        function search() {
-            if (!vm.searchQuery) {
-                return vm.loadAll();
-            }
-            CategorySearch.query({query: vm.searchQuery}, function(result) {
-                vm.categories = result;
-                vm.currentSearch = vm.searchQuery;
-            });
-        }
-
-        function clear() {
-            vm.searchQuery = null;
-            loadAll();
-        }    }
+    }
 })();

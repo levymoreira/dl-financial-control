@@ -4,7 +4,6 @@ import com.levymoreira.DlFinancialControlApp;
 
 import com.levymoreira.domain.Transaction;
 import com.levymoreira.repository.TransactionRepository;
-import com.levymoreira.repository.search.TransactionSearchRepository;
 import com.levymoreira.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -76,9 +75,6 @@ public class TransactionResourceIntTest {
     private TransactionRepository transactionRepository;
 
     @Autowired
-    private TransactionSearchRepository transactionSearchRepository;
-
-    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -97,7 +93,7 @@ public class TransactionResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-            TransactionResource transactionResource = new TransactionResource(transactionRepository, transactionSearchRepository);
+        TransactionResource transactionResource = new TransactionResource(transactionRepository);
         this.restTransactionMockMvc = MockMvcBuilders.standaloneSetup(transactionResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -112,21 +108,20 @@ public class TransactionResourceIntTest {
      */
     public static Transaction createEntity(EntityManager em) {
         Transaction transaction = new Transaction()
-                .transactionType(DEFAULT_TRANSACTION_TYPE)
-                .date(DEFAULT_DATE)
-                .ordination(DEFAULT_ORDINATION)
-                .number(DEFAULT_NUMBER)
-                .description(DEFAULT_DESCRIPTION)
-                .additionalInfo(DEFAULT_ADDITIONAL_INFO)
-                .amount(DEFAULT_AMOUNT)
-                .isDivided(DEFAULT_IS_DIVIDED)
-                .isTransfer(DEFAULT_IS_TRANSFER);
+            .transactionType(DEFAULT_TRANSACTION_TYPE)
+            .date(DEFAULT_DATE)
+            .ordination(DEFAULT_ORDINATION)
+            .number(DEFAULT_NUMBER)
+            .description(DEFAULT_DESCRIPTION)
+            .additionalInfo(DEFAULT_ADDITIONAL_INFO)
+            .amount(DEFAULT_AMOUNT)
+            .isDivided(DEFAULT_IS_DIVIDED)
+            .isTransfer(DEFAULT_IS_TRANSFER);
         return transaction;
     }
 
     @Before
     public void initTest() {
-        transactionSearchRepository.deleteAll();
         transaction = createEntity(em);
     }
 
@@ -136,7 +131,6 @@ public class TransactionResourceIntTest {
         int databaseSizeBeforeCreate = transactionRepository.findAll().size();
 
         // Create the Transaction
-
         restTransactionMockMvc.perform(post("/api/transactions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(transaction)))
@@ -155,10 +149,6 @@ public class TransactionResourceIntTest {
         assertThat(testTransaction.getAmount()).isEqualTo(DEFAULT_AMOUNT);
         assertThat(testTransaction.isIsDivided()).isEqualTo(DEFAULT_IS_DIVIDED);
         assertThat(testTransaction.isIsTransfer()).isEqualTo(DEFAULT_IS_TRANSFER);
-
-        // Validate the Transaction in Elasticsearch
-        Transaction transactionEs = transactionSearchRepository.findOne(testTransaction.getId());
-        assertThat(transactionEs).isEqualToComparingFieldByField(testTransaction);
     }
 
     @Test
@@ -167,13 +157,12 @@ public class TransactionResourceIntTest {
         int databaseSizeBeforeCreate = transactionRepository.findAll().size();
 
         // Create the Transaction with an existing ID
-        Transaction existingTransaction = new Transaction();
-        existingTransaction.setId(1L);
+        transaction.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restTransactionMockMvc.perform(post("/api/transactions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(existingTransaction)))
+            .content(TestUtil.convertObjectToJsonBytes(transaction)))
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
@@ -238,21 +227,20 @@ public class TransactionResourceIntTest {
     public void updateTransaction() throws Exception {
         // Initialize the database
         transactionRepository.saveAndFlush(transaction);
-        transactionSearchRepository.save(transaction);
         int databaseSizeBeforeUpdate = transactionRepository.findAll().size();
 
         // Update the transaction
         Transaction updatedTransaction = transactionRepository.findOne(transaction.getId());
         updatedTransaction
-                .transactionType(UPDATED_TRANSACTION_TYPE)
-                .date(UPDATED_DATE)
-                .ordination(UPDATED_ORDINATION)
-                .number(UPDATED_NUMBER)
-                .description(UPDATED_DESCRIPTION)
-                .additionalInfo(UPDATED_ADDITIONAL_INFO)
-                .amount(UPDATED_AMOUNT)
-                .isDivided(UPDATED_IS_DIVIDED)
-                .isTransfer(UPDATED_IS_TRANSFER);
+            .transactionType(UPDATED_TRANSACTION_TYPE)
+            .date(UPDATED_DATE)
+            .ordination(UPDATED_ORDINATION)
+            .number(UPDATED_NUMBER)
+            .description(UPDATED_DESCRIPTION)
+            .additionalInfo(UPDATED_ADDITIONAL_INFO)
+            .amount(UPDATED_AMOUNT)
+            .isDivided(UPDATED_IS_DIVIDED)
+            .isTransfer(UPDATED_IS_TRANSFER);
 
         restTransactionMockMvc.perform(put("/api/transactions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -272,10 +260,6 @@ public class TransactionResourceIntTest {
         assertThat(testTransaction.getAmount()).isEqualTo(UPDATED_AMOUNT);
         assertThat(testTransaction.isIsDivided()).isEqualTo(UPDATED_IS_DIVIDED);
         assertThat(testTransaction.isIsTransfer()).isEqualTo(UPDATED_IS_TRANSFER);
-
-        // Validate the Transaction in Elasticsearch
-        Transaction transactionEs = transactionSearchRepository.findOne(testTransaction.getId());
-        assertThat(transactionEs).isEqualToComparingFieldByField(testTransaction);
     }
 
     @Test
@@ -301,17 +285,12 @@ public class TransactionResourceIntTest {
     public void deleteTransaction() throws Exception {
         // Initialize the database
         transactionRepository.saveAndFlush(transaction);
-        transactionSearchRepository.save(transaction);
         int databaseSizeBeforeDelete = transactionRepository.findAll().size();
 
         // Get the transaction
         restTransactionMockMvc.perform(delete("/api/transactions/{id}", transaction.getId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
-
-        // Validate Elasticsearch is empty
-        boolean transactionExistsInEs = transactionSearchRepository.exists(transaction.getId());
-        assertThat(transactionExistsInEs).isFalse();
 
         // Validate the database is empty
         List<Transaction> transactionList = transactionRepository.findAll();
@@ -320,28 +299,6 @@ public class TransactionResourceIntTest {
 
     @Test
     @Transactional
-    public void searchTransaction() throws Exception {
-        // Initialize the database
-        transactionRepository.saveAndFlush(transaction);
-        transactionSearchRepository.save(transaction);
-
-        // Search the transaction
-        restTransactionMockMvc.perform(get("/api/_search/transactions?query=id:" + transaction.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(transaction.getId().intValue())))
-            .andExpect(jsonPath("$.[*].transactionType").value(hasItem(DEFAULT_TRANSACTION_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].date").value(hasItem(sameInstant(DEFAULT_DATE))))
-            .andExpect(jsonPath("$.[*].ordination").value(hasItem(DEFAULT_ORDINATION)))
-            .andExpect(jsonPath("$.[*].number").value(hasItem(DEFAULT_NUMBER.toString())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
-            .andExpect(jsonPath("$.[*].additionalInfo").value(hasItem(DEFAULT_ADDITIONAL_INFO.toString())))
-            .andExpect(jsonPath("$.[*].amount").value(hasItem(DEFAULT_AMOUNT.intValue())))
-            .andExpect(jsonPath("$.[*].isDivided").value(hasItem(DEFAULT_IS_DIVIDED.booleanValue())))
-            .andExpect(jsonPath("$.[*].isTransfer").value(hasItem(DEFAULT_IS_TRANSFER.booleanValue())));
-    }
-
-    @Test
     public void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(Transaction.class);
     }

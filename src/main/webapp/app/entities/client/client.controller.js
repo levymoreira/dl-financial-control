@@ -5,16 +5,13 @@
         .module('dlFinancialControlApp')
         .controller('ClientController', ClientController);
 
-    ClientController.$inject = ['Client', 'ClientSearch'];
+    ClientController.$inject = ['Client'];
 
-    function ClientController(Client, ClientSearch) {
+    function ClientController(Client) {
 
         var vm = this;
 
         vm.clients = [];
-        vm.clear = clear;
-        vm.search = search;
-        vm.loadAll = loadAll;
 
         loadAll();
 
@@ -24,19 +21,5 @@
                 vm.searchQuery = null;
             });
         }
-
-        function search() {
-            if (!vm.searchQuery) {
-                return vm.loadAll();
-            }
-            ClientSearch.query({query: vm.searchQuery}, function(result) {
-                vm.clients = result;
-                vm.currentSearch = vm.searchQuery;
-            });
-        }
-
-        function clear() {
-            vm.searchQuery = null;
-            loadAll();
-        }    }
+    }
 })();

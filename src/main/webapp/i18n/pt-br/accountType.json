@@ -4,8 +4,7 @@
             "home": {
                 "title": "Account Types",
                 "createLabel": "Criar novo Account Type",
-                "createOrEditLabel": "Criar ou editar Account Type",
-                "search": "Pesquisar por Account Type"
+                "createOrEditLabel": "Criar ou editar Account Type"
             },
             "created": "Um novo Account Type é criado com o identificador {{ param }}",
             "updated": "Um Account Type é atualizado com o identificador {{ param }}",

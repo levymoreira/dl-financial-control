@@ -4,7 +4,6 @@ import com.codahale.metrics.annotation.Timed;
 import com.levymoreira.domain.AccountType;
 
 import com.levymoreira.repository.AccountTypeRepository;
-import com.levymoreira.repository.search.AccountTypeSearchRepository;
 import com.levymoreira.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -16,10 +15,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing AccountType.
@@ -34,11 +29,8 @@ public class AccountTypeResource {
         
     private final AccountTypeRepository accountTypeRepository;
 
-    private final AccountTypeSearchRepository accountTypeSearchRepository;
-
-    public AccountTypeResource(AccountTypeRepository accountTypeRepository, AccountTypeSearchRepository accountTypeSearchRepository) {
+    public AccountTypeResource(AccountTypeRepository accountTypeRepository) {
         this.accountTypeRepository = accountTypeRepository;
-        this.accountTypeSearchRepository = accountTypeSearchRepository;
     }
 
     /**
@@ -56,7 +48,6 @@ public class AccountTypeResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new accountType cannot already have an ID")).body(null);
         }
         AccountType result = accountTypeRepository.save(accountType);
-        accountTypeSearchRepository.save(result);
         return ResponseEntity.created(new URI("/api/account-types/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -79,7 +70,6 @@ public class AccountTypeResource {
             return createAccountType(accountType);
         }
         AccountType result = accountTypeRepository.save(accountType);
-        accountTypeSearchRepository.save(result);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, accountType.getId().toString()))
             .body(result);
@@ -123,25 +113,7 @@ public class AccountTypeResource {
     public ResponseEntity<Void> deleteAccountType(@PathVariable Long id) {
         log.debug("REST request to delete AccountType : {}", id);
         accountTypeRepository.delete(id);
-        accountTypeSearchRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
-
-    /**
-     * SEARCH  /_search/account-types?query=:query : search for the accountType corresponding
-     * to the query.
-     *
-     * @param query the query of the accountType search 
-     * @return the result of the search
-     */
-    @GetMapping("/_search/account-types")
-    @Timed
-    public List<AccountType> searchAccountTypes(@RequestParam String query) {
-        log.debug("REST request to search AccountTypes for query {}", query);
-        return StreamSupport
-            .stream(accountTypeSearchRepository.search(queryStringQuery(query)).spliterator(), false)
-            .collect(Collectors.toList());
-    }
-
 
 }

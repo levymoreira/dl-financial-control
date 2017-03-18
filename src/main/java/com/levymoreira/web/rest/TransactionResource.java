@@ -4,7 +4,6 @@ import com.codahale.metrics.annotation.Timed;
 import com.levymoreira.domain.Transaction;
 
 import com.levymoreira.repository.TransactionRepository;
-import com.levymoreira.repository.search.TransactionSearchRepository;
 import com.levymoreira.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -16,10 +15,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing Transaction.
@@ -34,11 +29,8 @@ public class TransactionResource {
         
     private final TransactionRepository transactionRepository;
 
-    private final TransactionSearchRepository transactionSearchRepository;
-
-    public TransactionResource(TransactionRepository transactionRepository, TransactionSearchRepository transactionSearchRepository) {
+    public TransactionResource(TransactionRepository transactionRepository) {
         this.transactionRepository = transactionRepository;
-        this.transactionSearchRepository = transactionSearchRepository;
     }
 
     /**
@@ -56,7 +48,6 @@ public class TransactionResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new transaction cannot already have an ID")).body(null);
         }
         Transaction result = transactionRepository.save(transaction);
-        transactionSearchRepository.save(result);
         return ResponseEntity.created(new URI("/api/transactions/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -79,7 +70,6 @@ public class TransactionResource {
             return createTransaction(transaction);
         }
         Transaction result = transactionRepository.save(transaction);
-        transactionSearchRepository.save(result);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, transaction.getId().toString()))
             .body(result);
@@ -123,25 +113,7 @@ public class TransactionResource {
     public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
         log.debug("REST request to delete Transaction : {}", id);
         transactionRepository.delete(id);
-        transactionSearchRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
-
-    /**
-     * SEARCH  /_search/transactions?query=:query : search for the transaction corresponding
-     * to the query.
-     *
-     * @param query the query of the transaction search 
-     * @return the result of the search
-     */
-    @GetMapping("/_search/transactions")
-    @Timed
-    public List<Transaction> searchTransactions(@RequestParam String query) {
-        log.debug("REST request to search Transactions for query {}", query);
-        return StreamSupport
-            .stream(transactionSearchRepository.search(queryStringQuery(query)).spliterator(), false)
-            .collect(Collectors.toList());
-    }
-
 
 }

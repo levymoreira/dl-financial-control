@@ -4,8 +4,7 @@
             "home": {
                 "title": "Transactions",
                 "createLabel": "Criar novo Transaction",
-                "createOrEditLabel": "Criar ou editar Transaction",
-                "search": "Pesquisar por Transaction"
+                "createOrEditLabel": "Criar ou editar Transaction"
             },
             "created": "Um novo Transaction é criado com o identificador {{ param }}",
             "updated": "Um Transaction é atualizado com o identificador {{ param }}",

@@ -4,8 +4,7 @@
             "home": {
                 "title": "Categories",
                 "createLabel": "Criar novo Category",
-                "createOrEditLabel": "Criar ou editar Category",
-                "search": "Pesquisar por Category"
+                "createOrEditLabel": "Criar ou editar Category"
             },
             "created": "Um novo Category é criado com o identificador {{ param }}",
             "updated": "Um Category é atualizado com o identificador {{ param }}",

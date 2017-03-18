@@ -4,7 +4,6 @@ import com.codahale.metrics.annotation.Timed;
 import com.levymoreira.domain.CreditCardInvoice;
 
 import com.levymoreira.repository.CreditCardInvoiceRepository;
-import com.levymoreira.repository.search.CreditCardInvoiceSearchRepository;
 import com.levymoreira.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -16,10 +15,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing CreditCardInvoice.
@@ -34,11 +29,8 @@ public class CreditCardInvoiceResource {
         
     private final CreditCardInvoiceRepository creditCardInvoiceRepository;
 
-    private final CreditCardInvoiceSearchRepository creditCardInvoiceSearchRepository;
-
-    public CreditCardInvoiceResource(CreditCardInvoiceRepository creditCardInvoiceRepository, CreditCardInvoiceSearchRepository creditCardInvoiceSearchRepository) {
+    public CreditCardInvoiceResource(CreditCardInvoiceRepository creditCardInvoiceRepository) {
         this.creditCardInvoiceRepository = creditCardInvoiceRepository;
-        this.creditCardInvoiceSearchRepository = creditCardInvoiceSearchRepository;
     }
 
     /**
@@ -56,7 +48,6 @@ public class CreditCardInvoiceResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new creditCardInvoice cannot already have an ID")).body(null);
         }
         CreditCardInvoice result = creditCardInvoiceRepository.save(creditCardInvoice);
-        creditCardInvoiceSearchRepository.save(result);
         return ResponseEntity.created(new URI("/api/credit-card-invoices/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -79,7 +70,6 @@ public class CreditCardInvoiceResource {
             return createCreditCardInvoice(creditCardInvoice);
         }
         CreditCardInvoice result = creditCardInvoiceRepository.save(creditCardInvoice);
-        creditCardInvoiceSearchRepository.save(result);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, creditCardInvoice.getId().toString()))
             .body(result);
@@ -123,25 +113,7 @@ public class CreditCardInvoiceResource {
     public ResponseEntity<Void> deleteCreditCardInvoice(@PathVariable Long id) {
         log.debug("REST request to delete CreditCardInvoice : {}", id);
         creditCardInvoiceRepository.delete(id);
-        creditCardInvoiceSearchRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
-
-    /**
-     * SEARCH  /_search/credit-card-invoices?query=:query : search for the creditCardInvoice corresponding
-     * to the query.
-     *
-     * @param query the query of the creditCardInvoice search 
-     * @return the result of the search
-     */
-    @GetMapping("/_search/credit-card-invoices")
-    @Timed
-    public List<CreditCardInvoice> searchCreditCardInvoices(@RequestParam String query) {
-        log.debug("REST request to search CreditCardInvoices for query {}", query);
-        return StreamSupport
-            .stream(creditCardInvoiceSearchRepository.search(queryStringQuery(query)).spliterator(), false)
-            .collect(Collectors.toList());
-    }
-
 
 }

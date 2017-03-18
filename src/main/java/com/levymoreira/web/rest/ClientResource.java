@@ -4,7 +4,6 @@ import com.codahale.metrics.annotation.Timed;
 import com.levymoreira.domain.Client;
 
 import com.levymoreira.repository.ClientRepository;
-import com.levymoreira.repository.search.ClientSearchRepository;
 import com.levymoreira.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -16,10 +15,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing Client.
@@ -34,11 +29,8 @@ public class ClientResource {
         
     private final ClientRepository clientRepository;
 
-    private final ClientSearchRepository clientSearchRepository;
-
-    public ClientResource(ClientRepository clientRepository, ClientSearchRepository clientSearchRepository) {
+    public ClientResource(ClientRepository clientRepository) {
         this.clientRepository = clientRepository;
-        this.clientSearchRepository = clientSearchRepository;
     }
 
     /**
@@ -56,7 +48,6 @@ public class ClientResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new client cannot already have an ID")).body(null);
         }
         Client result = clientRepository.save(client);
-        clientSearchRepository.save(result);
         return ResponseEntity.created(new URI("/api/clients/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -79,7 +70,6 @@ public class ClientResource {
             return createClient(client);
         }
         Client result = clientRepository.save(client);
-        clientSearchRepository.save(result);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, client.getId().toString()))
             .body(result);
@@ -123,25 +113,7 @@ public class ClientResource {
     public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
         log.debug("REST request to delete Client : {}", id);
         clientRepository.delete(id);
-        clientSearchRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
-
-    /**
-     * SEARCH  /_search/clients?query=:query : search for the client corresponding
-     * to the query.
-     *
-     * @param query the query of the client search 
-     * @return the result of the search
-     */
-    @GetMapping("/_search/clients")
-    @Timed
-    public List<Client> searchClients(@RequestParam String query) {
-        log.debug("REST request to search Clients for query {}", query);
-        return StreamSupport
-            .stream(clientSearchRepository.search(queryStringQuery(query)).spliterator(), false)
-            .collect(Collectors.toList());
-    }
-
 
 }

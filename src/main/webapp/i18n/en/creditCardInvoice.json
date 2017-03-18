@@ -4,8 +4,7 @@
             "home": {
                 "title": "Credit Card Invoices",
                 "createLabel": "Create a new Credit Card Invoice",
-                "createOrEditLabel": "Create or edit a Credit Card Invoice",
-                "search": "Search for Credit Card Invoice"
+                "createOrEditLabel": "Create or edit a Credit Card Invoice"
             },
             "created": "A new Credit Card Invoice is created with identifier {{ param }}",
             "updated": "A Credit Card Invoice is updated with identifier {{ param }}",

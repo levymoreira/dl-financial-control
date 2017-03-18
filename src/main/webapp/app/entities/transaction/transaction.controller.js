@@ -5,16 +5,13 @@
         .module('dlFinancialControlApp')
         .controller('TransactionController', TransactionController);
 
-    TransactionController.$inject = ['Transaction', 'TransactionSearch'];
+    TransactionController.$inject = ['Transaction'];
 
-    function TransactionController(Transaction, TransactionSearch) {
+    function TransactionController(Transaction) {
 
         var vm = this;
 
         vm.transactions = [];
-        vm.clear = clear;
-        vm.search = search;
-        vm.loadAll = loadAll;
 
         loadAll();
 
@@ -24,19 +21,5 @@
                 vm.searchQuery = null;
             });
         }
-
-        function search() {
-            if (!vm.searchQuery) {
-                return vm.loadAll();
-            }
-            TransactionSearch.query({query: vm.searchQuery}, function(result) {
-                vm.transactions = result;
-                vm.currentSearch = vm.searchQuery;
-            });
-        }
-
-        function clear() {
-            vm.searchQuery = null;
-            loadAll();
-        }    }
+    }
 })();

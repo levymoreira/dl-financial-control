@@ -4,8 +4,7 @@
             "home": {
                 "title": "Account Types",
                 "createLabel": "Create a new Account Type",
-                "createOrEditLabel": "Create or edit a Account Type",
-                "search": "Search for Account Type"
+                "createOrEditLabel": "Create or edit a Account Type"
             },
             "created": "A new Account Type is created with identifier {{ param }}",
             "updated": "A Account Type is updated with identifier {{ param }}",

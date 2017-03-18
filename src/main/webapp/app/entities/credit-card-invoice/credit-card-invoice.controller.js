@@ -5,16 +5,13 @@
         .module('dlFinancialControlApp')
         .controller('CreditCardInvoiceController', CreditCardInvoiceController);
 
-    CreditCardInvoiceController.$inject = ['CreditCardInvoice', 'CreditCardInvoiceSearch'];
+    CreditCardInvoiceController.$inject = ['CreditCardInvoice'];
 
-    function CreditCardInvoiceController(CreditCardInvoice, CreditCardInvoiceSearch) {
+    function CreditCardInvoiceController(CreditCardInvoice) {
 
         var vm = this;
 
         vm.creditCardInvoices = [];
-        vm.clear = clear;
-        vm.search = search;
-        vm.loadAll = loadAll;
 
         loadAll();
 
@@ -24,19 +21,5 @@
                 vm.searchQuery = null;
             });
         }
-
-        function search() {
-            if (!vm.searchQuery) {
-                return vm.loadAll();
-            }
-            CreditCardInvoiceSearch.query({query: vm.searchQuery}, function(result) {
-                vm.creditCardInvoices = result;
-                vm.currentSearch = vm.searchQuery;
-            });
-        }
-
-        function clear() {
-            vm.searchQuery = null;
-            loadAll();
-        }    }
+    }
 })();

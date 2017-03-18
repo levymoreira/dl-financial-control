@@ -4,7 +4,6 @@ import com.levymoreira.DlFinancialControlApp;
 
 import com.levymoreira.domain.CreditCardInvoice;
 import com.levymoreira.repository.CreditCardInvoiceRepository;
-import com.levymoreira.repository.search.CreditCardInvoiceSearchRepository;
 import com.levymoreira.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -48,9 +47,6 @@ public class CreditCardInvoiceResourceIntTest {
     private CreditCardInvoiceRepository creditCardInvoiceRepository;
 
     @Autowired
-    private CreditCardInvoiceSearchRepository creditCardInvoiceSearchRepository;
-
-    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -69,7 +65,7 @@ public class CreditCardInvoiceResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-            CreditCardInvoiceResource creditCardInvoiceResource = new CreditCardInvoiceResource(creditCardInvoiceRepository, creditCardInvoiceSearchRepository);
+        CreditCardInvoiceResource creditCardInvoiceResource = new CreditCardInvoiceResource(creditCardInvoiceRepository);
         this.restCreditCardInvoiceMockMvc = MockMvcBuilders.standaloneSetup(creditCardInvoiceResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -84,14 +80,13 @@ public class CreditCardInvoiceResourceIntTest {
      */
     public static CreditCardInvoice createEntity(EntityManager em) {
         CreditCardInvoice creditCardInvoice = new CreditCardInvoice()
-                .year(DEFAULT_YEAR)
-                .month(DEFAULT_MONTH);
+            .year(DEFAULT_YEAR)
+            .month(DEFAULT_MONTH);
         return creditCardInvoice;
     }
 
     @Before
     public void initTest() {
-        creditCardInvoiceSearchRepository.deleteAll();
         creditCardInvoice = createEntity(em);
     }
 
@@ -101,7 +96,6 @@ public class CreditCardInvoiceResourceIntTest {
         int databaseSizeBeforeCreate = creditCardInvoiceRepository.findAll().size();
 
         // Create the CreditCardInvoice
-
         restCreditCardInvoiceMockMvc.perform(post("/api/credit-card-invoices")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(creditCardInvoice)))
@@ -113,10 +107,6 @@ public class CreditCardInvoiceResourceIntTest {
         CreditCardInvoice testCreditCardInvoice = creditCardInvoiceList.get(creditCardInvoiceList.size() - 1);
         assertThat(testCreditCardInvoice.getYear()).isEqualTo(DEFAULT_YEAR);
         assertThat(testCreditCardInvoice.getMonth()).isEqualTo(DEFAULT_MONTH);
-
-        // Validate the CreditCardInvoice in Elasticsearch
-        CreditCardInvoice creditCardInvoiceEs = creditCardInvoiceSearchRepository.findOne(testCreditCardInvoice.getId());
-        assertThat(creditCardInvoiceEs).isEqualToComparingFieldByField(testCreditCardInvoice);
     }
 
     @Test
@@ -125,13 +115,12 @@ public class CreditCardInvoiceResourceIntTest {
         int databaseSizeBeforeCreate = creditCardInvoiceRepository.findAll().size();
 
         // Create the CreditCardInvoice with an existing ID
-        CreditCardInvoice existingCreditCardInvoice = new CreditCardInvoice();
-        existingCreditCardInvoice.setId(1L);
+        creditCardInvoice.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restCreditCardInvoiceMockMvc.perform(post("/api/credit-card-invoices")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(existingCreditCardInvoice)))
+            .content(TestUtil.convertObjectToJsonBytes(creditCardInvoice)))
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
@@ -182,14 +171,13 @@ public class CreditCardInvoiceResourceIntTest {
     public void updateCreditCardInvoice() throws Exception {
         // Initialize the database
         creditCardInvoiceRepository.saveAndFlush(creditCardInvoice);
-        creditCardInvoiceSearchRepository.save(creditCardInvoice);
         int databaseSizeBeforeUpdate = creditCardInvoiceRepository.findAll().size();
 
         // Update the creditCardInvoice
         CreditCardInvoice updatedCreditCardInvoice = creditCardInvoiceRepository.findOne(creditCardInvoice.getId());
         updatedCreditCardInvoice
-                .year(UPDATED_YEAR)
-                .month(UPDATED_MONTH);
+            .year(UPDATED_YEAR)
+            .month(UPDATED_MONTH);
 
         restCreditCardInvoiceMockMvc.perform(put("/api/credit-card-invoices")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -202,10 +190,6 @@ public class CreditCardInvoiceResourceIntTest {
         CreditCardInvoice testCreditCardInvoice = creditCardInvoiceList.get(creditCardInvoiceList.size() - 1);
         assertThat(testCreditCardInvoice.getYear()).isEqualTo(UPDATED_YEAR);
         assertThat(testCreditCardInvoice.getMonth()).isEqualTo(UPDATED_MONTH);
-
-        // Validate the CreditCardInvoice in Elasticsearch
-        CreditCardInvoice creditCardInvoiceEs = creditCardInvoiceSearchRepository.findOne(testCreditCardInvoice.getId());
-        assertThat(creditCardInvoiceEs).isEqualToComparingFieldByField(testCreditCardInvoice);
     }
 
     @Test
@@ -231,17 +215,12 @@ public class CreditCardInvoiceResourceIntTest {
     public void deleteCreditCardInvoice() throws Exception {
         // Initialize the database
         creditCardInvoiceRepository.saveAndFlush(creditCardInvoice);
-        creditCardInvoiceSearchRepository.save(creditCardInvoice);
         int databaseSizeBeforeDelete = creditCardInvoiceRepository.findAll().size();
 
         // Get the creditCardInvoice
         restCreditCardInvoiceMockMvc.perform(delete("/api/credit-card-invoices/{id}", creditCardInvoice.getId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
-
-        // Validate Elasticsearch is empty
-        boolean creditCardInvoiceExistsInEs = creditCardInvoiceSearchRepository.exists(creditCardInvoice.getId());
-        assertThat(creditCardInvoiceExistsInEs).isFalse();
 
         // Validate the database is empty
         List<CreditCardInvoice> creditCardInvoiceList = creditCardInvoiceRepository.findAll();
@@ -250,21 +229,6 @@ public class CreditCardInvoiceResourceIntTest {
 
     @Test
     @Transactional
-    public void searchCreditCardInvoice() throws Exception {
-        // Initialize the database
-        creditCardInvoiceRepository.saveAndFlush(creditCardInvoice);
-        creditCardInvoiceSearchRepository.save(creditCardInvoice);
-
-        // Search the creditCardInvoice
-        restCreditCardInvoiceMockMvc.perform(get("/api/_search/credit-card-invoices?query=id:" + creditCardInvoice.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(creditCardInvoice.getId().intValue())))
-            .andExpect(jsonPath("$.[*].year").value(hasItem(DEFAULT_YEAR)))
-            .andExpect(jsonPath("$.[*].month").value(hasItem(DEFAULT_MONTH)));
-    }
-
-    @Test
     public void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(CreditCardInvoice.class);
     }

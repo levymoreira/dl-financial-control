@@ -4,7 +4,6 @@ import com.levymoreira.DlFinancialControlApp;
 
 import com.levymoreira.domain.InstallmentGroup;
 import com.levymoreira.repository.InstallmentGroupRepository;
-import com.levymoreira.repository.search.InstallmentGroupSearchRepository;
 import com.levymoreira.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -60,9 +59,6 @@ public class InstallmentGroupResourceIntTest {
     private InstallmentGroupRepository installmentGroupRepository;
 
     @Autowired
-    private InstallmentGroupSearchRepository installmentGroupSearchRepository;
-
-    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -81,7 +77,7 @@ public class InstallmentGroupResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-            InstallmentGroupResource installmentGroupResource = new InstallmentGroupResource(installmentGroupRepository, installmentGroupSearchRepository);
+        InstallmentGroupResource installmentGroupResource = new InstallmentGroupResource(installmentGroupRepository);
         this.restInstallmentGroupMockMvc = MockMvcBuilders.standaloneSetup(installmentGroupResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -96,16 +92,15 @@ public class InstallmentGroupResourceIntTest {
      */
     public static InstallmentGroup createEntity(EntityManager em) {
         InstallmentGroup installmentGroup = new InstallmentGroup()
-                .date(DEFAULT_DATE)
-                .description(DEFAULT_DESCRIPTION)
-                .installments(DEFAULT_INSTALLMENTS)
-                .amount(DEFAULT_AMOUNT);
+            .date(DEFAULT_DATE)
+            .description(DEFAULT_DESCRIPTION)
+            .installments(DEFAULT_INSTALLMENTS)
+            .amount(DEFAULT_AMOUNT);
         return installmentGroup;
     }
 
     @Before
     public void initTest() {
-        installmentGroupSearchRepository.deleteAll();
         installmentGroup = createEntity(em);
     }
 
@@ -115,7 +110,6 @@ public class InstallmentGroupResourceIntTest {
         int databaseSizeBeforeCreate = installmentGroupRepository.findAll().size();
 
         // Create the InstallmentGroup
-
         restInstallmentGroupMockMvc.perform(post("/api/installment-groups")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(installmentGroup)))
@@ -129,10 +123,6 @@ public class InstallmentGroupResourceIntTest {
         assertThat(testInstallmentGroup.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
         assertThat(testInstallmentGroup.getInstallments()).isEqualTo(DEFAULT_INSTALLMENTS);
         assertThat(testInstallmentGroup.getAmount()).isEqualTo(DEFAULT_AMOUNT);
-
-        // Validate the InstallmentGroup in Elasticsearch
-        InstallmentGroup installmentGroupEs = installmentGroupSearchRepository.findOne(testInstallmentGroup.getId());
-        assertThat(installmentGroupEs).isEqualToComparingFieldByField(testInstallmentGroup);
     }
 
     @Test
@@ -141,13 +131,12 @@ public class InstallmentGroupResourceIntTest {
         int databaseSizeBeforeCreate = installmentGroupRepository.findAll().size();
 
         // Create the InstallmentGroup with an existing ID
-        InstallmentGroup existingInstallmentGroup = new InstallmentGroup();
-        existingInstallmentGroup.setId(1L);
+        installmentGroup.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restInstallmentGroupMockMvc.perform(post("/api/installment-groups")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(existingInstallmentGroup)))
+            .content(TestUtil.convertObjectToJsonBytes(installmentGroup)))
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
@@ -202,16 +191,15 @@ public class InstallmentGroupResourceIntTest {
     public void updateInstallmentGroup() throws Exception {
         // Initialize the database
         installmentGroupRepository.saveAndFlush(installmentGroup);
-        installmentGroupSearchRepository.save(installmentGroup);
         int databaseSizeBeforeUpdate = installmentGroupRepository.findAll().size();
 
         // Update the installmentGroup
         InstallmentGroup updatedInstallmentGroup = installmentGroupRepository.findOne(installmentGroup.getId());
         updatedInstallmentGroup
-                .date(UPDATED_DATE)
-                .description(UPDATED_DESCRIPTION)
-                .installments(UPDATED_INSTALLMENTS)
-                .amount(UPDATED_AMOUNT);
+            .date(UPDATED_DATE)
+            .description(UPDATED_DESCRIPTION)
+            .installments(UPDATED_INSTALLMENTS)
+            .amount(UPDATED_AMOUNT);
 
         restInstallmentGroupMockMvc.perform(put("/api/installment-groups")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -226,10 +214,6 @@ public class InstallmentGroupResourceIntTest {
         assertThat(testInstallmentGroup.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertThat(testInstallmentGroup.getInstallments()).isEqualTo(UPDATED_INSTALLMENTS);
         assertThat(testInstallmentGroup.getAmount()).isEqualTo(UPDATED_AMOUNT);
-
-        // Validate the InstallmentGroup in Elasticsearch
-        InstallmentGroup installmentGroupEs = installmentGroupSearchRepository.findOne(testInstallmentGroup.getId());
-        assertThat(installmentGroupEs).isEqualToComparingFieldByField(testInstallmentGroup);
     }
 
     @Test
@@ -255,17 +239,12 @@ public class InstallmentGroupResourceIntTest {
     public void deleteInstallmentGroup() throws Exception {
         // Initialize the database
         installmentGroupRepository.saveAndFlush(installmentGroup);
-        installmentGroupSearchRepository.save(installmentGroup);
         int databaseSizeBeforeDelete = installmentGroupRepository.findAll().size();
 
         // Get the installmentGroup
         restInstallmentGroupMockMvc.perform(delete("/api/installment-groups/{id}", installmentGroup.getId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
-
-        // Validate Elasticsearch is empty
-        boolean installmentGroupExistsInEs = installmentGroupSearchRepository.exists(installmentGroup.getId());
-        assertThat(installmentGroupExistsInEs).isFalse();
 
         // Validate the database is empty
         List<InstallmentGroup> installmentGroupList = installmentGroupRepository.findAll();
@@ -274,23 +253,6 @@ public class InstallmentGroupResourceIntTest {
 
     @Test
     @Transactional
-    public void searchInstallmentGroup() throws Exception {
-        // Initialize the database
-        installmentGroupRepository.saveAndFlush(installmentGroup);
-        installmentGroupSearchRepository.save(installmentGroup);
-
-        // Search the installmentGroup
-        restInstallmentGroupMockMvc.perform(get("/api/_search/installment-groups?query=id:" + installmentGroup.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(installmentGroup.getId().intValue())))
-            .andExpect(jsonPath("$.[*].date").value(hasItem(sameInstant(DEFAULT_DATE))))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
-            .andExpect(jsonPath("$.[*].installments").value(hasItem(DEFAULT_INSTALLMENTS)))
-            .andExpect(jsonPath("$.[*].amount").value(hasItem(DEFAULT_AMOUNT.intValue())));
-    }
-
-    @Test
     public void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(InstallmentGroup.class);
     }

@@ -4,7 +4,6 @@ import com.levymoreira.DlFinancialControlApp;
 
 import com.levymoreira.domain.Category;
 import com.levymoreira.repository.CategoryRepository;
-import com.levymoreira.repository.search.CategorySearchRepository;
 import com.levymoreira.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -49,9 +48,6 @@ public class CategoryResourceIntTest {
     private CategoryRepository categoryRepository;
 
     @Autowired
-    private CategorySearchRepository categorySearchRepository;
-
-    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -70,7 +66,7 @@ public class CategoryResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-            CategoryResource categoryResource = new CategoryResource(categoryRepository, categorySearchRepository);
+        CategoryResource categoryResource = new CategoryResource(categoryRepository);
         this.restCategoryMockMvc = MockMvcBuilders.standaloneSetup(categoryResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -85,14 +81,13 @@ public class CategoryResourceIntTest {
      */
     public static Category createEntity(EntityManager em) {
         Category category = new Category()
-                .transactionType(DEFAULT_TRANSACTION_TYPE)
-                .description(DEFAULT_DESCRIPTION);
+            .transactionType(DEFAULT_TRANSACTION_TYPE)
+            .description(DEFAULT_DESCRIPTION);
         return category;
     }
 
     @Before
     public void initTest() {
-        categorySearchRepository.deleteAll();
         category = createEntity(em);
     }
 
@@ -102,7 +97,6 @@ public class CategoryResourceIntTest {
         int databaseSizeBeforeCreate = categoryRepository.findAll().size();
 
         // Create the Category
-
         restCategoryMockMvc.perform(post("/api/categories")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(category)))
@@ -114,10 +108,6 @@ public class CategoryResourceIntTest {
         Category testCategory = categoryList.get(categoryList.size() - 1);
         assertThat(testCategory.getTransactionType()).isEqualTo(DEFAULT_TRANSACTION_TYPE);
         assertThat(testCategory.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
-
-        // Validate the Category in Elasticsearch
-        Category categoryEs = categorySearchRepository.findOne(testCategory.getId());
-        assertThat(categoryEs).isEqualToComparingFieldByField(testCategory);
     }
 
     @Test
@@ -126,13 +116,12 @@ public class CategoryResourceIntTest {
         int databaseSizeBeforeCreate = categoryRepository.findAll().size();
 
         // Create the Category with an existing ID
-        Category existingCategory = new Category();
-        existingCategory.setId(1L);
+        category.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restCategoryMockMvc.perform(post("/api/categories")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(existingCategory)))
+            .content(TestUtil.convertObjectToJsonBytes(category)))
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
@@ -183,14 +172,13 @@ public class CategoryResourceIntTest {
     public void updateCategory() throws Exception {
         // Initialize the database
         categoryRepository.saveAndFlush(category);
-        categorySearchRepository.save(category);
         int databaseSizeBeforeUpdate = categoryRepository.findAll().size();
 
         // Update the category
         Category updatedCategory = categoryRepository.findOne(category.getId());
         updatedCategory
-                .transactionType(UPDATED_TRANSACTION_TYPE)
-                .description(UPDATED_DESCRIPTION);
+            .transactionType(UPDATED_TRANSACTION_TYPE)
+            .description(UPDATED_DESCRIPTION);
 
         restCategoryMockMvc.perform(put("/api/categories")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -203,10 +191,6 @@ public class CategoryResourceIntTest {
         Category testCategory = categoryList.get(categoryList.size() - 1);
         assertThat(testCategory.getTransactionType()).isEqualTo(UPDATED_TRANSACTION_TYPE);
         assertThat(testCategory.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
-
-        // Validate the Category in Elasticsearch
-        Category categoryEs = categorySearchRepository.findOne(testCategory.getId());
-        assertThat(categoryEs).isEqualToComparingFieldByField(testCategory);
     }
 
     @Test
@@ -232,17 +216,12 @@ public class CategoryResourceIntTest {
     public void deleteCategory() throws Exception {
         // Initialize the database
         categoryRepository.saveAndFlush(category);
-        categorySearchRepository.save(category);
         int databaseSizeBeforeDelete = categoryRepository.findAll().size();
 
         // Get the category
         restCategoryMockMvc.perform(delete("/api/categories/{id}", category.getId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
-
-        // Validate Elasticsearch is empty
-        boolean categoryExistsInEs = categorySearchRepository.exists(category.getId());
-        assertThat(categoryExistsInEs).isFalse();
 
         // Validate the database is empty
         List<Category> categoryList = categoryRepository.findAll();
@@ -251,21 +230,6 @@ public class CategoryResourceIntTest {
 
     @Test
     @Transactional
-    public void searchCategory() throws Exception {
-        // Initialize the database
-        categoryRepository.saveAndFlush(category);
-        categorySearchRepository.save(category);
-
-        // Search the category
-        restCategoryMockMvc.perform(get("/api/_search/categories?query=id:" + category.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(category.getId().intValue())))
-            .andExpect(jsonPath("$.[*].transactionType").value(hasItem(DEFAULT_TRANSACTION_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())));
-    }
-
-    @Test
     public void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(Category.class);
     }

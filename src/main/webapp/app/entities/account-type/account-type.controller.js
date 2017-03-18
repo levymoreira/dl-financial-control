@@ -5,16 +5,13 @@
         .module('dlFinancialControlApp')
         .controller('AccountTypeController', AccountTypeController);
 
-    AccountTypeController.$inject = ['AccountType', 'AccountTypeSearch'];
+    AccountTypeController.$inject = ['AccountType'];
 
-    function AccountTypeController(AccountType, AccountTypeSearch) {
+    function AccountTypeController(AccountType) {
 
         var vm = this;
 
         vm.accountTypes = [];
-        vm.clear = clear;
-        vm.search = search;
-        vm.loadAll = loadAll;
 
         loadAll();
 
@@ -24,19 +21,5 @@
                 vm.searchQuery = null;
             });
         }
-
-        function search() {
-            if (!vm.searchQuery) {
-                return vm.loadAll();
-            }
-            AccountTypeSearch.query({query: vm.searchQuery}, function(result) {
-                vm.accountTypes = result;
-                vm.currentSearch = vm.searchQuery;
-            });
-        }
-
-        function clear() {
-            vm.searchQuery = null;
-            loadAll();
-        }    }
+    }
 })();

@@ -4,7 +4,6 @@ import com.levymoreira.DlFinancialControlApp;
 
 import com.levymoreira.domain.AccountType;
 import com.levymoreira.repository.AccountTypeRepository;
-import com.levymoreira.repository.search.AccountTypeSearchRepository;
 import com.levymoreira.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -48,9 +47,6 @@ public class AccountTypeResourceIntTest {
     private AccountTypeRepository accountTypeRepository;
 
     @Autowired
-    private AccountTypeSearchRepository accountTypeSearchRepository;
-
-    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -69,7 +65,7 @@ public class AccountTypeResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-            AccountTypeResource accountTypeResource = new AccountTypeResource(accountTypeRepository, accountTypeSearchRepository);
+        AccountTypeResource accountTypeResource = new AccountTypeResource(accountTypeRepository);
         this.restAccountTypeMockMvc = MockMvcBuilders.standaloneSetup(accountTypeResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -84,14 +80,13 @@ public class AccountTypeResourceIntTest {
      */
     public static AccountType createEntity(EntityManager em) {
         AccountType accountType = new AccountType()
-                .description(DEFAULT_DESCRIPTION)
-                .code(DEFAULT_CODE);
+            .description(DEFAULT_DESCRIPTION)
+            .code(DEFAULT_CODE);
         return accountType;
     }
 
     @Before
     public void initTest() {
-        accountTypeSearchRepository.deleteAll();
         accountType = createEntity(em);
     }
 
@@ -101,7 +96,6 @@ public class AccountTypeResourceIntTest {
         int databaseSizeBeforeCreate = accountTypeRepository.findAll().size();
 
         // Create the AccountType
-
         restAccountTypeMockMvc.perform(post("/api/account-types")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(accountType)))
@@ -113,10 +107,6 @@ public class AccountTypeResourceIntTest {
         AccountType testAccountType = accountTypeList.get(accountTypeList.size() - 1);
         assertThat(testAccountType.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
         assertThat(testAccountType.getCode()).isEqualTo(DEFAULT_CODE);
-
-        // Validate the AccountType in Elasticsearch
-        AccountType accountTypeEs = accountTypeSearchRepository.findOne(testAccountType.getId());
-        assertThat(accountTypeEs).isEqualToComparingFieldByField(testAccountType);
     }
 
     @Test
@@ -125,13 +115,12 @@ public class AccountTypeResourceIntTest {
         int databaseSizeBeforeCreate = accountTypeRepository.findAll().size();
 
         // Create the AccountType with an existing ID
-        AccountType existingAccountType = new AccountType();
-        existingAccountType.setId(1L);
+        accountType.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restAccountTypeMockMvc.perform(post("/api/account-types")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(existingAccountType)))
+            .content(TestUtil.convertObjectToJsonBytes(accountType)))
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
@@ -182,14 +171,13 @@ public class AccountTypeResourceIntTest {
     public void updateAccountType() throws Exception {
         // Initialize the database
         accountTypeRepository.saveAndFlush(accountType);
-        accountTypeSearchRepository.save(accountType);
         int databaseSizeBeforeUpdate = accountTypeRepository.findAll().size();
 
         // Update the accountType
         AccountType updatedAccountType = accountTypeRepository.findOne(accountType.getId());
         updatedAccountType
-                .description(UPDATED_DESCRIPTION)
-                .code(UPDATED_CODE);
+            .description(UPDATED_DESCRIPTION)
+            .code(UPDATED_CODE);
 
         restAccountTypeMockMvc.perform(put("/api/account-types")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -202,10 +190,6 @@ public class AccountTypeResourceIntTest {
         AccountType testAccountType = accountTypeList.get(accountTypeList.size() - 1);
         assertThat(testAccountType.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertThat(testAccountType.getCode()).isEqualTo(UPDATED_CODE);
-
-        // Validate the AccountType in Elasticsearch
-        AccountType accountTypeEs = accountTypeSearchRepository.findOne(testAccountType.getId());
-        assertThat(accountTypeEs).isEqualToComparingFieldByField(testAccountType);
     }
 
     @Test
@@ -231,17 +215,12 @@ public class AccountTypeResourceIntTest {
     public void deleteAccountType() throws Exception {
         // Initialize the database
         accountTypeRepository.saveAndFlush(accountType);
-        accountTypeSearchRepository.save(accountType);
         int databaseSizeBeforeDelete = accountTypeRepository.findAll().size();
 
         // Get the accountType
         restAccountTypeMockMvc.perform(delete("/api/account-types/{id}", accountType.getId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
-
-        // Validate Elasticsearch is empty
-        boolean accountTypeExistsInEs = accountTypeSearchRepository.exists(accountType.getId());
-        assertThat(accountTypeExistsInEs).isFalse();
 
         // Validate the database is empty
         List<AccountType> accountTypeList = accountTypeRepository.findAll();
@@ -250,21 +229,6 @@ public class AccountTypeResourceIntTest {
 
     @Test
     @Transactional
-    public void searchAccountType() throws Exception {
-        // Initialize the database
-        accountTypeRepository.saveAndFlush(accountType);
-        accountTypeSearchRepository.save(accountType);
-
-        // Search the accountType
-        restAccountTypeMockMvc.perform(get("/api/_search/account-types?query=id:" + accountType.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(accountType.getId().intValue())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
-            .andExpect(jsonPath("$.[*].code").value(hasItem(DEFAULT_CODE.toString())));
-    }
-
-    @Test
     public void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(AccountType.class);
     }

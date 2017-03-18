@@ -4,8 +4,7 @@
             "home": {
                 "title": "Installment Groups",
                 "createLabel": "Criar novo Installment Group",
-                "createOrEditLabel": "Criar ou editar Installment Group",
-                "search": "Pesquisar por Installment Group"
+                "createOrEditLabel": "Criar ou editar Installment Group"
             },
             "created": "Um novo Installment Group é criado com o identificador {{ param }}",
             "updated": "Um Installment Group é atualizado com o identificador {{ param }}",

@@ -1,6 +1,6 @@
 {
   "generator-jhipster": {
-    "jhipsterVersion": "4.0.7",
+    "jhipsterVersion": "4.0.8",
     "baseName": "dlFinancialControl",
     "packageName": "com.levymoreira",
     "packageFolder": "com/levymoreira",
@@ -12,7 +12,6 @@
     "databaseType": "sql",
     "devDatabaseType": "mysql",
     "prodDatabaseType": "mysql",
-    "searchEngine": "elasticsearch",
     "messageBroker": false,
     "serviceDiscoveryType": false,
     "buildTool": "gradle",
@@ -28,6 +27,7 @@
     "languages": [
       "en",
       "pt-br"
-    ]
+    ],
+    "searchEngine": false
   }
 }
