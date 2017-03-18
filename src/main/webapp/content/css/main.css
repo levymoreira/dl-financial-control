@@ -328,3 +328,8 @@ ui bootstrap tweaks
 
 
 /* jhipster-needle-css-add-main JHipster will add new css style */
+
+.btn-big {
+    width:145px;
+    margin-top:10px;
+}

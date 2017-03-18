@@ -2,7 +2,7 @@
     "dlFinancialControlApp": {
         "transaction" : {
             "home": {
-                "title": "Transactions",
+                "title": "Movimentação",
                 "createLabel": "Criar novo Transaction",
                 "createOrEditLabel": "Criar ou editar Transaction"
             },
@@ -15,23 +15,30 @@
             "detail": {
                 "title": "Transaction"
             },
-            "transactionType": "Transaction Type",
-            "date": "Date",
-            "ordination": "Ordination",
-            "number": "Number",
-            "description": "Description",
-            "additionalInfo": "Additional Info",
-            "amount": "Amount",
-            "isDivided": "Is Divided",
-            "isTransfer": "Is Transfer",
-            "user": "User",
+            "transactionType": "Tipo",
+            "date": "Data",
+            "ordination": "Ordenação",
+            "number": "Número",
+            "description": "Descrição",
+            "additionalInfo": "Informações Adicionais",
+            "amount": "Valor",
+            "isDivided": "Dividido",
+            "isTransfer": "Transferência",
+            "user": "Usuário",
             "installmentGroup": "Installment Group",
             "creditCardInvoice": "Credit Card Invoice",
             "owner": "Owner",
-            "source": "Source",
-            "category": "Category",
-            "client": "Client",
-            "account": "Account"
+            "source": "Fonte",
+            "category": "Categoria",
+            "client": "Cliente",
+            "account": "Conta",
+            "period": "Período",
+            "search": "Pesquisar",
+            "expense": "Despesa",
+            "recipe": "Receita",
+            "import": "Importar",
+            "true": "Sim",
+            "false": "Não"
         }
     }
 }

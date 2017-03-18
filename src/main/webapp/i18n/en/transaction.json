@@ -15,7 +15,7 @@
             "detail": {
                 "title": "Transaction"
             },
-            "transactionType": "Transaction Type",
+            "transactionType": "Type",
             "date": "Date",
             "ordination": "Ordination",
             "number": "Number",
@@ -23,7 +23,7 @@
             "additionalInfo": "Additional Info",
             "amount": "Amount",
             "isDivided": "Is Divided",
-            "isTransfer": "Is Transfer",
+            "isTransfer": "Transfer",
             "user": "User",
             "installmentGroup": "Installment Group",
             "creditCardInvoice": "Credit Card Invoice",
@@ -31,7 +31,14 @@
             "source": "Source",
             "category": "Category",
             "client": "Client",
-            "account": "Account"
+            "account": "Account",
+            "period": "Period",
+            "search": "Search",
+            "expense": "Expense",
+            "recipe": "Recipe",
+            "import": "Import",
+            "true": "Yes",
+            "false": "No"
         }
     }
 }

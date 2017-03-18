@@ -2,8 +2,8 @@
     "dlFinancialControlApp": {
         "TransactionType" : {
             "null": "",
-            "INPUT": "INPUT",
-            "OUTPUT": "OUTPUT"
+            "INPUT": "In",
+            "OUTPUT": "Out"
         }
     }
 }
