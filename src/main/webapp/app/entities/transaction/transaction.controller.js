@@ -11,6 +11,17 @@
 
         var vm = this;
 
+        //Filters
+        vm.year = new Date().getFullYear();
+        vm.month = (new Date().getMonth()+1).toString();
+
+        vm.years = [];
+        var i;
+        for(i= 1899; i<=vm.year+100; i++)
+            vm.years.push(i);
+
+        vm.search = search;
+
         vm.loadPage = loadPage;
         vm.predicate = pagingParams.predicate;
         vm.reverse = pagingParams.ascending;
@@ -54,6 +65,13 @@
                 page: vm.page,
                 sort: vm.predicate + ',' + (vm.reverse ? 'asc' : 'desc'),
                 search: vm.currentSearch
+            });
+        }
+
+        function search() {]
+            Transaction.query({query: vm.searchQuery}, function(result) {
+                vm.transactions = result;
+                vm.currentSearch = vm.searchQuery;
             });
         }
     }
