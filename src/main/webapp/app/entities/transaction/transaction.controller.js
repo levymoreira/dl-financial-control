@@ -5,50 +5,56 @@
         .module('dlFinancialControlApp')
         .controller('TransactionController', TransactionController);
 
-    TransactionController.$inject = ['Transaction'];
+    TransactionController.$inject = ['$state', 'Transaction', 'ParseLinks', 'AlertService', 'paginationConstants', 'pagingParams'];
 
-    function TransactionController(Transaction) {
+    function TransactionController($state, Transaction, ParseLinks, AlertService, paginationConstants, pagingParams) {
 
         var vm = this;
 
-        //Filters
-        vm.year = new Date().getFullYear();
-        vm.month = (new Date().getMonth()+1).toString();
-
-        vm.years = [];
-        var i;
-        for(i= 1899; i<=vm.year+100; i++)
-            vm.years.push(i);
-
-
-        vm.transactions = [];
-        vm.clear = clear;
-        vm.search = search;
-        vm.loadAll = loadAll;
+        vm.loadPage = loadPage;
+        vm.predicate = pagingParams.predicate;
+        vm.reverse = pagingParams.ascending;
+        vm.transition = transition;
+        vm.itemsPerPage = paginationConstants.itemsPerPage;
 
         loadAll();
 
-        function loadAll() {
-            Transaction.query(function(result) {
-                vm.transactions = result;
+        function loadAll () {
+            Transaction.query({
+                page: pagingParams.page - 1,
+                size: vm.itemsPerPage,
+                sort: sort()
+            }, onSuccess, onError);
+            function sort() {
+                var result = [vm.predicate + ',' + (vm.reverse ? 'asc' : 'desc')];
+                if (vm.predicate !== 'id') {
+                    result.push('id');
+                }
+                return result;
+            }
+            function onSuccess(data, headers) {
+                vm.links = ParseLinks.parse(headers('link'));
+                vm.totalItems = headers('X-Total-Count');
+                vm.queryCount = vm.totalItems;
+                vm.transactions = data;
+                vm.page = pagingParams.page;
+            }
+            function onError(error) {
+                AlertService.error(error.data.message);
+            }
+        }
+
+        function loadPage(page) {
+            vm.page = page;
+            vm.transition();
+        }
+
+        function transition() {
+            $state.transitionTo($state.$current, {
+                page: vm.page,
+                sort: vm.predicate + ',' + (vm.reverse ? 'asc' : 'desc'),
+                search: vm.currentSearch
             });
         }
-
-        function search() {
-            console.log(vm.description);
-            console.log(vm.account);
-            debugger;
-            /*if (!vm.searchQuery) {
-                return vm.loadAll();
-            }
-            Transaction.query({query: vm.searchQuery}, function(result) {
-                vm.transactions = result;
-                vm.currentSearch = vm.searchQuery;
-            });*/
-        }
-
-        function clear() {
-            vm.searchQuery = null;
-            loadAll();
-        }    }
+    }
 })();

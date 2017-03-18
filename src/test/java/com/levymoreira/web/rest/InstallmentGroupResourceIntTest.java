@@ -4,6 +4,9 @@ import com.levymoreira.DlFinancialControlApp;
 
 import com.levymoreira.domain.InstallmentGroup;
 import com.levymoreira.repository.InstallmentGroupRepository;
+import com.levymoreira.service.InstallmentGroupService;
+import com.levymoreira.service.dto.InstallmentGroupDTO;
+import com.levymoreira.service.mapper.InstallmentGroupMapper;
 import com.levymoreira.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -59,6 +62,12 @@ public class InstallmentGroupResourceIntTest {
     private InstallmentGroupRepository installmentGroupRepository;
 
     @Autowired
+    private InstallmentGroupMapper installmentGroupMapper;
+
+    @Autowired
+    private InstallmentGroupService installmentGroupService;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -77,7 +86,7 @@ public class InstallmentGroupResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        InstallmentGroupResource installmentGroupResource = new InstallmentGroupResource(installmentGroupRepository);
+        InstallmentGroupResource installmentGroupResource = new InstallmentGroupResource(installmentGroupService);
         this.restInstallmentGroupMockMvc = MockMvcBuilders.standaloneSetup(installmentGroupResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -110,9 +119,10 @@ public class InstallmentGroupResourceIntTest {
         int databaseSizeBeforeCreate = installmentGroupRepository.findAll().size();
 
         // Create the InstallmentGroup
+        InstallmentGroupDTO installmentGroupDTO = installmentGroupMapper.installmentGroupToInstallmentGroupDTO(installmentGroup);
         restInstallmentGroupMockMvc.perform(post("/api/installment-groups")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(installmentGroup)))
+            .content(TestUtil.convertObjectToJsonBytes(installmentGroupDTO)))
             .andExpect(status().isCreated());
 
         // Validate the InstallmentGroup in the database
@@ -132,11 +142,12 @@ public class InstallmentGroupResourceIntTest {
 
         // Create the InstallmentGroup with an existing ID
         installmentGroup.setId(1L);
+        InstallmentGroupDTO installmentGroupDTO = installmentGroupMapper.installmentGroupToInstallmentGroupDTO(installmentGroup);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restInstallmentGroupMockMvc.perform(post("/api/installment-groups")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(installmentGroup)))
+            .content(TestUtil.convertObjectToJsonBytes(installmentGroupDTO)))
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
@@ -200,10 +211,11 @@ public class InstallmentGroupResourceIntTest {
             .description(UPDATED_DESCRIPTION)
             .installments(UPDATED_INSTALLMENTS)
             .amount(UPDATED_AMOUNT);
+        InstallmentGroupDTO installmentGroupDTO = installmentGroupMapper.installmentGroupToInstallmentGroupDTO(updatedInstallmentGroup);
 
         restInstallmentGroupMockMvc.perform(put("/api/installment-groups")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(updatedInstallmentGroup)))
+            .content(TestUtil.convertObjectToJsonBytes(installmentGroupDTO)))
             .andExpect(status().isOk());
 
         // Validate the InstallmentGroup in the database
@@ -222,11 +234,12 @@ public class InstallmentGroupResourceIntTest {
         int databaseSizeBeforeUpdate = installmentGroupRepository.findAll().size();
 
         // Create the InstallmentGroup
+        InstallmentGroupDTO installmentGroupDTO = installmentGroupMapper.installmentGroupToInstallmentGroupDTO(installmentGroup);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restInstallmentGroupMockMvc.perform(put("/api/installment-groups")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(installmentGroup)))
+            .content(TestUtil.convertObjectToJsonBytes(installmentGroupDTO)))
             .andExpect(status().isCreated());
 
         // Validate the InstallmentGroup in the database

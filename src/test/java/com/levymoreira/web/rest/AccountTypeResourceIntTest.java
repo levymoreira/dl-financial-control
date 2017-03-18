@@ -4,6 +4,9 @@ import com.levymoreira.DlFinancialControlApp;
 
 import com.levymoreira.domain.AccountType;
 import com.levymoreira.repository.AccountTypeRepository;
+import com.levymoreira.service.AccountTypeService;
+import com.levymoreira.service.dto.AccountTypeDTO;
+import com.levymoreira.service.mapper.AccountTypeMapper;
 import com.levymoreira.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -47,6 +50,12 @@ public class AccountTypeResourceIntTest {
     private AccountTypeRepository accountTypeRepository;
 
     @Autowired
+    private AccountTypeMapper accountTypeMapper;
+
+    @Autowired
+    private AccountTypeService accountTypeService;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -65,7 +74,7 @@ public class AccountTypeResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        AccountTypeResource accountTypeResource = new AccountTypeResource(accountTypeRepository);
+        AccountTypeResource accountTypeResource = new AccountTypeResource(accountTypeService);
         this.restAccountTypeMockMvc = MockMvcBuilders.standaloneSetup(accountTypeResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -96,9 +105,10 @@ public class AccountTypeResourceIntTest {
         int databaseSizeBeforeCreate = accountTypeRepository.findAll().size();
 
         // Create the AccountType
+        AccountTypeDTO accountTypeDTO = accountTypeMapper.accountTypeToAccountTypeDTO(accountType);
         restAccountTypeMockMvc.perform(post("/api/account-types")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(accountType)))
+            .content(TestUtil.convertObjectToJsonBytes(accountTypeDTO)))
             .andExpect(status().isCreated());
 
         // Validate the AccountType in the database
@@ -116,11 +126,12 @@ public class AccountTypeResourceIntTest {
 
         // Create the AccountType with an existing ID
         accountType.setId(1L);
+        AccountTypeDTO accountTypeDTO = accountTypeMapper.accountTypeToAccountTypeDTO(accountType);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restAccountTypeMockMvc.perform(post("/api/account-types")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(accountType)))
+            .content(TestUtil.convertObjectToJsonBytes(accountTypeDTO)))
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
@@ -178,10 +189,11 @@ public class AccountTypeResourceIntTest {
         updatedAccountType
             .description(UPDATED_DESCRIPTION)
             .code(UPDATED_CODE);
+        AccountTypeDTO accountTypeDTO = accountTypeMapper.accountTypeToAccountTypeDTO(updatedAccountType);
 
         restAccountTypeMockMvc.perform(put("/api/account-types")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(updatedAccountType)))
+            .content(TestUtil.convertObjectToJsonBytes(accountTypeDTO)))
             .andExpect(status().isOk());
 
         // Validate the AccountType in the database
@@ -198,11 +210,12 @@ public class AccountTypeResourceIntTest {
         int databaseSizeBeforeUpdate = accountTypeRepository.findAll().size();
 
         // Create the AccountType
+        AccountTypeDTO accountTypeDTO = accountTypeMapper.accountTypeToAccountTypeDTO(accountType);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restAccountTypeMockMvc.perform(put("/api/account-types")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(accountType)))
+            .content(TestUtil.convertObjectToJsonBytes(accountTypeDTO)))
             .andExpect(status().isCreated());
 
         // Validate the AccountType in the database

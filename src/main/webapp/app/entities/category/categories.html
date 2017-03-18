@@ -17,12 +17,12 @@
     <div class="table-responsive">
         <table class="jh-table table table-striped">
             <thead>
-                <tr>
-                    <th><span data-translate="global.field.id">ID</span></th>
-                    <th><span data-translate="dlFinancialControlApp.category.transactionType">Transaction Type</span></th>
-                    <th><span data-translate="dlFinancialControlApp.category.description">Description</span></th>
-                    <th><span data-translate="dlFinancialControlApp.category.owner">Owner</span></th>
-                    <th><span data-translate="dlFinancialControlApp.category.user">User</span></th>
+                <tr jh-sort="vm.predicate" ascending="vm.reverse" callback="vm.transition()">
+                    <th jh-sort-by="id"><span data-translate="global.field.id">ID</span> <span class="glyphicon glyphicon-sort"></span></th>
+                    <th jh-sort-by="transactionType"><span data-translate="dlFinancialControlApp.category.transactionType">Transaction Type</span> <span class="glyphicon glyphicon-sort"></span></th>
+                    <th jh-sort-by="description"><span data-translate="dlFinancialControlApp.category.description">Description</span> <span class="glyphicon glyphicon-sort"></span></th>
+                    <th jh-sort-by="ownerId"><span data-translate="dlFinancialControlApp.category.owner">Owner</span> <span class="glyphicon glyphicon-sort"></span></th>
+                    <th jh-sort-by="userId"><span data-translate="dlFinancialControlApp.category.user">User</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th></th>
                 </tr>
             </thead>
@@ -32,10 +32,10 @@
                     <td data-translate="{{'dlFinancialControlApp.TransactionType.' + category.transactionType}}">{{category.transactionType}}</td>
                     <td>{{category.description}}</td>
                     <td>
-                        <a ui-sref="category-detail({id:category.owner.id})">{{category.owner.id}}</a>
+                        <a ui-sref="category-detail({id:category.ownerId})">{{category.ownerId}}</a>
                     </td>
                     <td>
-                        {{category.user.id}}
+                        {{category.userId}}
                     </td>
                     <td class="text-right">
                         <div class="btn-group flex-btn-group-container">
@@ -62,5 +62,9 @@
                 </tr>
             </tbody>
         </table>
+    </div>
+    <div class="text-center">
+        <jhi-item-count page="vm.page" total="vm.queryCount" items-per-page="vm.itemsPerPage"></jhi-item-count>
+        <uib-pagination class="pagination-sm" total-items="vm.totalItems" items-per-page="vm.itemsPerPage" ng-model="vm.page" ng-change="vm.transition()"></uib-pagination>
     </div>
 </div>

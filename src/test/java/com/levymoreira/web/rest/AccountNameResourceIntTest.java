@@ -4,6 +4,9 @@ import com.levymoreira.DlFinancialControlApp;
 
 import com.levymoreira.domain.AccountName;
 import com.levymoreira.repository.AccountNameRepository;
+import com.levymoreira.service.AccountNameService;
+import com.levymoreira.service.dto.AccountNameDTO;
+import com.levymoreira.service.mapper.AccountNameMapper;
 import com.levymoreira.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -44,6 +47,12 @@ public class AccountNameResourceIntTest {
     private AccountNameRepository accountNameRepository;
 
     @Autowired
+    private AccountNameMapper accountNameMapper;
+
+    @Autowired
+    private AccountNameService accountNameService;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -62,7 +71,7 @@ public class AccountNameResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        AccountNameResource accountNameResource = new AccountNameResource(accountNameRepository);
+        AccountNameResource accountNameResource = new AccountNameResource(accountNameService);
         this.restAccountNameMockMvc = MockMvcBuilders.standaloneSetup(accountNameResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -92,9 +101,10 @@ public class AccountNameResourceIntTest {
         int databaseSizeBeforeCreate = accountNameRepository.findAll().size();
 
         // Create the AccountName
+        AccountNameDTO accountNameDTO = accountNameMapper.accountNameToAccountNameDTO(accountName);
         restAccountNameMockMvc.perform(post("/api/account-names")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(accountName)))
+            .content(TestUtil.convertObjectToJsonBytes(accountNameDTO)))
             .andExpect(status().isCreated());
 
         // Validate the AccountName in the database
@@ -111,11 +121,12 @@ public class AccountNameResourceIntTest {
 
         // Create the AccountName with an existing ID
         accountName.setId(1L);
+        AccountNameDTO accountNameDTO = accountNameMapper.accountNameToAccountNameDTO(accountName);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restAccountNameMockMvc.perform(post("/api/account-names")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(accountName)))
+            .content(TestUtil.convertObjectToJsonBytes(accountNameDTO)))
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
@@ -170,10 +181,11 @@ public class AccountNameResourceIntTest {
         AccountName updatedAccountName = accountNameRepository.findOne(accountName.getId());
         updatedAccountName
             .description(UPDATED_DESCRIPTION);
+        AccountNameDTO accountNameDTO = accountNameMapper.accountNameToAccountNameDTO(updatedAccountName);
 
         restAccountNameMockMvc.perform(put("/api/account-names")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(updatedAccountName)))
+            .content(TestUtil.convertObjectToJsonBytes(accountNameDTO)))
             .andExpect(status().isOk());
 
         // Validate the AccountName in the database
@@ -189,11 +201,12 @@ public class AccountNameResourceIntTest {
         int databaseSizeBeforeUpdate = accountNameRepository.findAll().size();
 
         // Create the AccountName
+        AccountNameDTO accountNameDTO = accountNameMapper.accountNameToAccountNameDTO(accountName);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restAccountNameMockMvc.perform(put("/api/account-names")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(accountName)))
+            .content(TestUtil.convertObjectToJsonBytes(accountNameDTO)))
             .andExpect(status().isCreated());
 
         // Validate the AccountName in the database

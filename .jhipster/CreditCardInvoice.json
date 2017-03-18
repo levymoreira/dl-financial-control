@@ -20,7 +20,7 @@
     ],
     "changelogDate": "20170309203729",
     "entityTableName": "credit_card_invoice",
-    "dto": "no",
-    "pagination": "no",
-    "service": "no"
+    "dto": "mapstruct",
+    "pagination": "pagination",
+    "service": "serviceClass"
 }

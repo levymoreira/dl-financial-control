@@ -4,6 +4,9 @@ import com.levymoreira.DlFinancialControlApp;
 
 import com.levymoreira.domain.CreditCardInvoice;
 import com.levymoreira.repository.CreditCardInvoiceRepository;
+import com.levymoreira.service.CreditCardInvoiceService;
+import com.levymoreira.service.dto.CreditCardInvoiceDTO;
+import com.levymoreira.service.mapper.CreditCardInvoiceMapper;
 import com.levymoreira.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -47,6 +50,12 @@ public class CreditCardInvoiceResourceIntTest {
     private CreditCardInvoiceRepository creditCardInvoiceRepository;
 
     @Autowired
+    private CreditCardInvoiceMapper creditCardInvoiceMapper;
+
+    @Autowired
+    private CreditCardInvoiceService creditCardInvoiceService;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -65,7 +74,7 @@ public class CreditCardInvoiceResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        CreditCardInvoiceResource creditCardInvoiceResource = new CreditCardInvoiceResource(creditCardInvoiceRepository);
+        CreditCardInvoiceResource creditCardInvoiceResource = new CreditCardInvoiceResource(creditCardInvoiceService);
         this.restCreditCardInvoiceMockMvc = MockMvcBuilders.standaloneSetup(creditCardInvoiceResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -96,9 +105,10 @@ public class CreditCardInvoiceResourceIntTest {
         int databaseSizeBeforeCreate = creditCardInvoiceRepository.findAll().size();
 
         // Create the CreditCardInvoice
+        CreditCardInvoiceDTO creditCardInvoiceDTO = creditCardInvoiceMapper.creditCardInvoiceToCreditCardInvoiceDTO(creditCardInvoice);
         restCreditCardInvoiceMockMvc.perform(post("/api/credit-card-invoices")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(creditCardInvoice)))
+            .content(TestUtil.convertObjectToJsonBytes(creditCardInvoiceDTO)))
             .andExpect(status().isCreated());
 
         // Validate the CreditCardInvoice in the database
@@ -116,11 +126,12 @@ public class CreditCardInvoiceResourceIntTest {
 
         // Create the CreditCardInvoice with an existing ID
         creditCardInvoice.setId(1L);
+        CreditCardInvoiceDTO creditCardInvoiceDTO = creditCardInvoiceMapper.creditCardInvoiceToCreditCardInvoiceDTO(creditCardInvoice);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restCreditCardInvoiceMockMvc.perform(post("/api/credit-card-invoices")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(creditCardInvoice)))
+            .content(TestUtil.convertObjectToJsonBytes(creditCardInvoiceDTO)))
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
@@ -178,10 +189,11 @@ public class CreditCardInvoiceResourceIntTest {
         updatedCreditCardInvoice
             .year(UPDATED_YEAR)
             .month(UPDATED_MONTH);
+        CreditCardInvoiceDTO creditCardInvoiceDTO = creditCardInvoiceMapper.creditCardInvoiceToCreditCardInvoiceDTO(updatedCreditCardInvoice);
 
         restCreditCardInvoiceMockMvc.perform(put("/api/credit-card-invoices")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(updatedCreditCardInvoice)))
+            .content(TestUtil.convertObjectToJsonBytes(creditCardInvoiceDTO)))
             .andExpect(status().isOk());
 
         // Validate the CreditCardInvoice in the database
@@ -198,11 +210,12 @@ public class CreditCardInvoiceResourceIntTest {
         int databaseSizeBeforeUpdate = creditCardInvoiceRepository.findAll().size();
 
         // Create the CreditCardInvoice
+        CreditCardInvoiceDTO creditCardInvoiceDTO = creditCardInvoiceMapper.creditCardInvoiceToCreditCardInvoiceDTO(creditCardInvoice);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restCreditCardInvoiceMockMvc.perform(put("/api/credit-card-invoices")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(creditCardInvoice)))
+            .content(TestUtil.convertObjectToJsonBytes(creditCardInvoiceDTO)))
             .andExpect(status().isCreated());
 
         // Validate the CreditCardInvoice in the database

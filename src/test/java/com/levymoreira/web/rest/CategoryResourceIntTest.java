@@ -4,6 +4,9 @@ import com.levymoreira.DlFinancialControlApp;
 
 import com.levymoreira.domain.Category;
 import com.levymoreira.repository.CategoryRepository;
+import com.levymoreira.service.CategoryService;
+import com.levymoreira.service.dto.CategoryDTO;
+import com.levymoreira.service.mapper.CategoryMapper;
 import com.levymoreira.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -48,6 +51,12 @@ public class CategoryResourceIntTest {
     private CategoryRepository categoryRepository;
 
     @Autowired
+    private CategoryMapper categoryMapper;
+
+    @Autowired
+    private CategoryService categoryService;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -66,7 +75,7 @@ public class CategoryResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        CategoryResource categoryResource = new CategoryResource(categoryRepository);
+        CategoryResource categoryResource = new CategoryResource(categoryService);
         this.restCategoryMockMvc = MockMvcBuilders.standaloneSetup(categoryResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -97,9 +106,10 @@ public class CategoryResourceIntTest {
         int databaseSizeBeforeCreate = categoryRepository.findAll().size();
 
         // Create the Category
+        CategoryDTO categoryDTO = categoryMapper.categoryToCategoryDTO(category);
         restCategoryMockMvc.perform(post("/api/categories")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(category)))
+            .content(TestUtil.convertObjectToJsonBytes(categoryDTO)))
             .andExpect(status().isCreated());
 
         // Validate the Category in the database
@@ -117,11 +127,12 @@ public class CategoryResourceIntTest {
 
         // Create the Category with an existing ID
         category.setId(1L);
+        CategoryDTO categoryDTO = categoryMapper.categoryToCategoryDTO(category);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restCategoryMockMvc.perform(post("/api/categories")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(category)))
+            .content(TestUtil.convertObjectToJsonBytes(categoryDTO)))
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
@@ -179,10 +190,11 @@ public class CategoryResourceIntTest {
         updatedCategory
             .transactionType(UPDATED_TRANSACTION_TYPE)
             .description(UPDATED_DESCRIPTION);
+        CategoryDTO categoryDTO = categoryMapper.categoryToCategoryDTO(updatedCategory);
 
         restCategoryMockMvc.perform(put("/api/categories")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(updatedCategory)))
+            .content(TestUtil.convertObjectToJsonBytes(categoryDTO)))
             .andExpect(status().isOk());
 
         // Validate the Category in the database
@@ -199,11 +211,12 @@ public class CategoryResourceIntTest {
         int databaseSizeBeforeUpdate = categoryRepository.findAll().size();
 
         // Create the Category
+        CategoryDTO categoryDTO = categoryMapper.categoryToCategoryDTO(category);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restCategoryMockMvc.perform(put("/api/categories")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(category)))
+            .content(TestUtil.convertObjectToJsonBytes(categoryDTO)))
             .andExpect(status().isCreated());
 
         // Validate the Category in the database

@@ -27,7 +27,7 @@
     ],
     "changelogDate": "20170309203729",
     "entityTableName": "category",
-    "dto": "no",
-    "pagination": "no",
-    "service": "no"
+    "dto": "mapstruct",
+    "pagination": "pagination",
+    "service": "serviceClass"
 }

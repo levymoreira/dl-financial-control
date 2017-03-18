@@ -4,6 +4,9 @@ import com.levymoreira.DlFinancialControlApp;
 
 import com.levymoreira.domain.Client;
 import com.levymoreira.repository.ClientRepository;
+import com.levymoreira.service.ClientService;
+import com.levymoreira.service.dto.ClientDTO;
+import com.levymoreira.service.mapper.ClientMapper;
 import com.levymoreira.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -47,6 +50,12 @@ public class ClientResourceIntTest {
     private ClientRepository clientRepository;
 
     @Autowired
+    private ClientMapper clientMapper;
+
+    @Autowired
+    private ClientService clientService;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -65,7 +74,7 @@ public class ClientResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        ClientResource clientResource = new ClientResource(clientRepository);
+        ClientResource clientResource = new ClientResource(clientService);
         this.restClientMockMvc = MockMvcBuilders.standaloneSetup(clientResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -96,9 +105,10 @@ public class ClientResourceIntTest {
         int databaseSizeBeforeCreate = clientRepository.findAll().size();
 
         // Create the Client
+        ClientDTO clientDTO = clientMapper.clientToClientDTO(client);
         restClientMockMvc.perform(post("/api/clients")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(client)))
+            .content(TestUtil.convertObjectToJsonBytes(clientDTO)))
             .andExpect(status().isCreated());
 
         // Validate the Client in the database
@@ -116,11 +126,12 @@ public class ClientResourceIntTest {
 
         // Create the Client with an existing ID
         client.setId(1L);
+        ClientDTO clientDTO = clientMapper.clientToClientDTO(client);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restClientMockMvc.perform(post("/api/clients")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(client)))
+            .content(TestUtil.convertObjectToJsonBytes(clientDTO)))
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
@@ -178,10 +189,11 @@ public class ClientResourceIntTest {
         updatedClient
             .name(UPDATED_NAME)
             .additionalInfo(UPDATED_ADDITIONAL_INFO);
+        ClientDTO clientDTO = clientMapper.clientToClientDTO(updatedClient);
 
         restClientMockMvc.perform(put("/api/clients")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(updatedClient)))
+            .content(TestUtil.convertObjectToJsonBytes(clientDTO)))
             .andExpect(status().isOk());
 
         // Validate the Client in the database
@@ -198,11 +210,12 @@ public class ClientResourceIntTest {
         int databaseSizeBeforeUpdate = clientRepository.findAll().size();
 
         // Create the Client
+        ClientDTO clientDTO = clientMapper.clientToClientDTO(client);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restClientMockMvc.perform(put("/api/clients")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(client)))
+            .content(TestUtil.convertObjectToJsonBytes(clientDTO)))
             .andExpect(status().isCreated());
 
         // Validate the Client in the database

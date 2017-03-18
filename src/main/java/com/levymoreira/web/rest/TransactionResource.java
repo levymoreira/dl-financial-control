@@ -1,20 +1,27 @@
 package com.levymoreira.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import com.levymoreira.domain.Transaction;
-
-import com.levymoreira.repository.TransactionRepository;
+import com.levymoreira.service.TransactionService;
 import com.levymoreira.web.rest.util.HeaderUtil;
+import com.levymoreira.web.rest.util.PaginationUtil;
+import com.levymoreira.service.dto.TransactionDTO;
+import io.swagger.annotations.ApiParam;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing Transaction.
@@ -27,27 +34,27 @@ public class TransactionResource {
 
     private static final String ENTITY_NAME = "transaction";
         
-    private final TransactionRepository transactionRepository;
+    private final TransactionService transactionService;
 
-    public TransactionResource(TransactionRepository transactionRepository) {
-        this.transactionRepository = transactionRepository;
+    public TransactionResource(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     /**
      * POST  /transactions : Create a new transaction.
      *
-     * @param transaction the transaction to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new transaction, or with status 400 (Bad Request) if the transaction has already an ID
+     * @param transactionDTO the transactionDTO to create
+     * @return the ResponseEntity with status 201 (Created) and with body the new transactionDTO, or with status 400 (Bad Request) if the transaction has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/transactions")
     @Timed
-    public ResponseEntity<Transaction> createTransaction(@RequestBody Transaction transaction) throws URISyntaxException {
-        log.debug("REST request to save Transaction : {}", transaction);
-        if (transaction.getId() != null) {
+    public ResponseEntity<TransactionDTO> createTransaction(@RequestBody TransactionDTO transactionDTO) throws URISyntaxException {
+        log.debug("REST request to save Transaction : {}", transactionDTO);
+        if (transactionDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new transaction cannot already have an ID")).body(null);
         }
-        Transaction result = transactionRepository.save(transaction);
+        TransactionDTO result = transactionService.save(transactionDTO);
         return ResponseEntity.created(new URI("/api/transactions/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -56,63 +63,66 @@ public class TransactionResource {
     /**
      * PUT  /transactions : Updates an existing transaction.
      *
-     * @param transaction the transaction to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated transaction,
-     * or with status 400 (Bad Request) if the transaction is not valid,
-     * or with status 500 (Internal Server Error) if the transaction couldnt be updated
+     * @param transactionDTO the transactionDTO to update
+     * @return the ResponseEntity with status 200 (OK) and with body the updated transactionDTO,
+     * or with status 400 (Bad Request) if the transactionDTO is not valid,
+     * or with status 500 (Internal Server Error) if the transactionDTO couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/transactions")
     @Timed
-    public ResponseEntity<Transaction> updateTransaction(@RequestBody Transaction transaction) throws URISyntaxException {
-        log.debug("REST request to update Transaction : {}", transaction);
-        if (transaction.getId() == null) {
-            return createTransaction(transaction);
+    public ResponseEntity<TransactionDTO> updateTransaction(@RequestBody TransactionDTO transactionDTO) throws URISyntaxException {
+        log.debug("REST request to update Transaction : {}", transactionDTO);
+        if (transactionDTO.getId() == null) {
+            return createTransaction(transactionDTO);
         }
-        Transaction result = transactionRepository.save(transaction);
+        TransactionDTO result = transactionService.save(transactionDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, transaction.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, transactionDTO.getId().toString()))
             .body(result);
     }
 
     /**
      * GET  /transactions : get all the transactions.
      *
+     * @param pageable the pagination information
      * @return the ResponseEntity with status 200 (OK) and the list of transactions in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
     @GetMapping("/transactions")
     @Timed
-    public List<Transaction> getAllTransactions() {
-        log.debug("REST request to get all Transactions");
-        List<Transaction> transactions = transactionRepository.findAll();
-        return transactions;
+    public ResponseEntity<List<TransactionDTO>> getAllTransactions(@ApiParam Pageable pageable) {
+        log.debug("REST request to get a page of Transactions");
+        Page<TransactionDTO> page = transactionService.findAll(pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/transactions");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     /**
      * GET  /transactions/:id : get the "id" transaction.
      *
-     * @param id the id of the transaction to retrieve
-     * @return the ResponseEntity with status 200 (OK) and with body the transaction, or with status 404 (Not Found)
+     * @param id the id of the transactionDTO to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the transactionDTO, or with status 404 (Not Found)
      */
     @GetMapping("/transactions/{id}")
     @Timed
-    public ResponseEntity<Transaction> getTransaction(@PathVariable Long id) {
+    public ResponseEntity<TransactionDTO> getTransaction(@PathVariable Long id) {
         log.debug("REST request to get Transaction : {}", id);
-        Transaction transaction = transactionRepository.findOne(id);
-        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(transaction));
+        TransactionDTO transactionDTO = transactionService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(transactionDTO));
     }
 
     /**
      * DELETE  /transactions/:id : delete the "id" transaction.
      *
-     * @param id the id of the transaction to delete
+     * @param id the id of the transactionDTO to delete
      * @return the ResponseEntity with status 200 (OK)
      */
     @DeleteMapping("/transactions/{id}")
     @Timed
     public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
         log.debug("REST request to delete Transaction : {}", id);
-        transactionRepository.delete(id);
+        transactionService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
 

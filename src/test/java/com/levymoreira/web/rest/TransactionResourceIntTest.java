@@ -4,6 +4,9 @@ import com.levymoreira.DlFinancialControlApp;
 
 import com.levymoreira.domain.Transaction;
 import com.levymoreira.repository.TransactionRepository;
+import com.levymoreira.service.TransactionService;
+import com.levymoreira.service.dto.TransactionDTO;
+import com.levymoreira.service.mapper.TransactionMapper;
 import com.levymoreira.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -75,6 +78,12 @@ public class TransactionResourceIntTest {
     private TransactionRepository transactionRepository;
 
     @Autowired
+    private TransactionMapper transactionMapper;
+
+    @Autowired
+    private TransactionService transactionService;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -93,7 +102,7 @@ public class TransactionResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        TransactionResource transactionResource = new TransactionResource(transactionRepository);
+        TransactionResource transactionResource = new TransactionResource(transactionService);
         this.restTransactionMockMvc = MockMvcBuilders.standaloneSetup(transactionResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -131,9 +140,10 @@ public class TransactionResourceIntTest {
         int databaseSizeBeforeCreate = transactionRepository.findAll().size();
 
         // Create the Transaction
+        TransactionDTO transactionDTO = transactionMapper.transactionToTransactionDTO(transaction);
         restTransactionMockMvc.perform(post("/api/transactions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(transaction)))
+            .content(TestUtil.convertObjectToJsonBytes(transactionDTO)))
             .andExpect(status().isCreated());
 
         // Validate the Transaction in the database
@@ -158,11 +168,12 @@ public class TransactionResourceIntTest {
 
         // Create the Transaction with an existing ID
         transaction.setId(1L);
+        TransactionDTO transactionDTO = transactionMapper.transactionToTransactionDTO(transaction);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restTransactionMockMvc.perform(post("/api/transactions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(transaction)))
+            .content(TestUtil.convertObjectToJsonBytes(transactionDTO)))
             .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
@@ -241,10 +252,11 @@ public class TransactionResourceIntTest {
             .amount(UPDATED_AMOUNT)
             .isDivided(UPDATED_IS_DIVIDED)
             .isTransfer(UPDATED_IS_TRANSFER);
+        TransactionDTO transactionDTO = transactionMapper.transactionToTransactionDTO(updatedTransaction);
 
         restTransactionMockMvc.perform(put("/api/transactions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(updatedTransaction)))
+            .content(TestUtil.convertObjectToJsonBytes(transactionDTO)))
             .andExpect(status().isOk());
 
         // Validate the Transaction in the database
@@ -268,11 +280,12 @@ public class TransactionResourceIntTest {
         int databaseSizeBeforeUpdate = transactionRepository.findAll().size();
 
         // Create the Transaction
+        TransactionDTO transactionDTO = transactionMapper.transactionToTransactionDTO(transaction);
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restTransactionMockMvc.perform(put("/api/transactions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(transaction)))
+            .content(TestUtil.convertObjectToJsonBytes(transactionDTO)))
             .andExpect(status().isCreated());
 
         // Validate the Transaction in the database

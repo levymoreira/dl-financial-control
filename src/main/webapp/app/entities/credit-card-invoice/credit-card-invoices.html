@@ -17,11 +17,11 @@
     <div class="table-responsive">
         <table class="jh-table table table-striped">
             <thead>
-                <tr>
-                    <th><span data-translate="global.field.id">ID</span></th>
-                    <th><span data-translate="dlFinancialControlApp.creditCardInvoice.year">Year</span></th>
-                    <th><span data-translate="dlFinancialControlApp.creditCardInvoice.month">Month</span></th>
-                    <th><span data-translate="dlFinancialControlApp.creditCardInvoice.account">Account</span></th>
+                <tr jh-sort="vm.predicate" ascending="vm.reverse" callback="vm.transition()">
+                    <th jh-sort-by="id"><span data-translate="global.field.id">ID</span> <span class="glyphicon glyphicon-sort"></span></th>
+                    <th jh-sort-by="year"><span data-translate="dlFinancialControlApp.creditCardInvoice.year">Year</span> <span class="glyphicon glyphicon-sort"></span></th>
+                    <th jh-sort-by="month"><span data-translate="dlFinancialControlApp.creditCardInvoice.month">Month</span> <span class="glyphicon glyphicon-sort"></span></th>
+                    <th jh-sort-by="accountId"><span data-translate="dlFinancialControlApp.creditCardInvoice.account">Account</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th></th>
                 </tr>
             </thead>
@@ -31,7 +31,7 @@
                     <td>{{creditCardInvoice.year}}</td>
                     <td>{{creditCardInvoice.month}}</td>
                     <td>
-                        <a ui-sref="account-name-detail({id:creditCardInvoice.account.id})">{{creditCardInvoice.account.id}}</a>
+                        <a ui-sref="account-name-detail({id:creditCardInvoice.accountId})">{{creditCardInvoice.accountId}}</a>
                     </td>
                     <td class="text-right">
                         <div class="btn-group flex-btn-group-container">
@@ -58,5 +58,9 @@
                 </tr>
             </tbody>
         </table>
+    </div>
+    <div class="text-center">
+        <jhi-item-count page="vm.page" total="vm.queryCount" items-per-page="vm.itemsPerPage"></jhi-item-count>
+        <uib-pagination class="pagination-sm" total-items="vm.totalItems" items-per-page="vm.itemsPerPage" ng-model="vm.page" ng-change="vm.transition()"></uib-pagination>
     </div>
 </div>

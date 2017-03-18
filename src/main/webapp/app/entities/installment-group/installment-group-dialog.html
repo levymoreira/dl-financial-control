@@ -44,7 +44,7 @@
 
         <div class="form-group">
             <label data-translate="dlFinancialControlApp.installmentGroup.account" for="field_account">Account</label>
-            <select class="form-control" id="field_account" name="account" ng-model="vm.installmentGroup.account" ng-options="accountName as accountName.id for accountName in vm.accountnames track by accountName.id">
+            <select class="form-control" id="field_account" name="account" ng-model="vm.installmentGroup.accountId" ng-options="accountName.id as accountName.id for accountName in vm.accountnames"            >
                 <option value=""></option>
             </select>
         </div>

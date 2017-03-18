@@ -22,7 +22,7 @@
     ],
     "changelogDate": "20170309203729",
     "entityTableName": "account_name",
-    "dto": "no",
-    "pagination": "no",
-    "service": "no"
+    "dto": "mapstruct",
+    "pagination": "pagination",
+    "service": "serviceClass"
 }

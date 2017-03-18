@@ -73,49 +73,49 @@
 
         <div class="form-group">
             <label data-translate="dlFinancialControlApp.transaction.user" for="field_user">User</label>
-            <select class="form-control" id="field_user" name="user" ng-model="vm.transaction.user" ng-options="user as user.id for user in vm.users track by user.id">
+            <select class="form-control" id="field_user" name="user" ng-model="vm.transaction.userId" ng-options="user.id as user.id for user in vm.users"            >
                 <option value=""></option>
             </select>
         </div>
         <div class="form-group">
             <label data-translate="dlFinancialControlApp.transaction.installmentGroup" for="field_installmentGroup">Installment Group</label>
-            <select class="form-control" id="field_installmentGroup" name="installmentGroup" ng-model="vm.transaction.installmentGroup" ng-options="installmentGroup as installmentGroup.id for installmentGroup in vm.installmentgroups track by installmentGroup.id">
+            <select class="form-control" id="field_installmentGroup" name="installmentGroup" ng-model="vm.transaction.installmentGroupId" ng-options="installmentGroup.id as installmentGroup.id for installmentGroup in vm.installmentgroups"            >
                 <option value=""></option>
             </select>
         </div>
         <div class="form-group">
             <label data-translate="dlFinancialControlApp.transaction.creditCardInvoice" for="field_creditCardInvoice">Credit Card Invoice</label>
-            <select class="form-control" id="field_creditCardInvoice" name="creditCardInvoice" ng-model="vm.transaction.creditCardInvoice" ng-options="creditCardInvoice as creditCardInvoice.id for creditCardInvoice in vm.creditcardinvoices track by creditCardInvoice.id">
+            <select class="form-control" id="field_creditCardInvoice" name="creditCardInvoice" ng-model="vm.transaction.creditCardInvoiceId" ng-options="creditCardInvoice.id as creditCardInvoice.id for creditCardInvoice in vm.creditcardinvoices"            >
                 <option value=""></option>
             </select>
         </div>
         <div class="form-group">
             <label data-translate="dlFinancialControlApp.transaction.owner" for="field_owner">Owner</label>
-            <select class="form-control" id="field_owner" name="owner" ng-model="vm.transaction.owner" ng-options="transaction as transaction.id for transaction in vm.transactions track by transaction.id">
+            <select class="form-control" id="field_owner" name="owner" ng-model="vm.transaction.ownerId" ng-options="transaction.id as transaction.id for transaction in vm.transactions"            >
                 <option value=""></option>
             </select>
         </div>
         <div class="form-group">
             <label data-translate="dlFinancialControlApp.transaction.source" for="field_source">Source</label>
-            <select class="form-control" id="field_source" name="source" ng-model="vm.transaction.source" ng-options="transaction as transaction.id for transaction in vm.transactions track by transaction.id">
+            <select class="form-control" id="field_source" name="source" ng-model="vm.transaction.sourceId" ng-options="transaction.id as transaction.id for transaction in vm.transactions"            >
                 <option value=""></option>
             </select>
         </div>
         <div class="form-group">
             <label data-translate="dlFinancialControlApp.transaction.category" for="field_category">Category</label>
-            <select class="form-control" id="field_category" name="category" ng-model="vm.transaction.category" ng-options="category as category.id for category in vm.categories track by category.id">
+            <select class="form-control" id="field_category" name="category" ng-model="vm.transaction.categoryId" ng-options="category.id as category.id for category in vm.categories"            >
                 <option value=""></option>
             </select>
         </div>
         <div class="form-group">
             <label data-translate="dlFinancialControlApp.transaction.client" for="field_client">Client</label>
-            <select class="form-control" id="field_client" name="client" ng-model="vm.transaction.client" ng-options="client as client.id for client in vm.clients track by client.id">
+            <select class="form-control" id="field_client" name="client" ng-model="vm.transaction.clientId" ng-options="client.id as client.id for client in vm.clients"            >
                 <option value=""></option>
             </select>
         </div>
         <div class="form-group">
             <label data-translate="dlFinancialControlApp.transaction.account" for="field_account">Account</label>
-            <select class="form-control" id="field_account" name="account" ng-model="vm.transaction.account" ng-options="accountName as accountName.id for accountName in vm.accountnames track by accountName.id">
+            <select class="form-control" id="field_account" name="account" ng-model="vm.transaction.accountId" ng-options="accountName.id as accountName.id for accountName in vm.accountnames"            >
                 <option value=""></option>
             </select>
         </div>
