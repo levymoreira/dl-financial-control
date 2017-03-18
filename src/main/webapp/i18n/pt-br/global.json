@@ -2,6 +2,11 @@
     "global": {
         "title": "DL Financial Control",
         "browsehappy": "Você está usando um navegador <strong>desatualizado</strong>. Favor <a href=\"http://browsehappy.com/?locale=pt_BR\">atualizar o seu navegador</a> para ter uma experiência melhor.",
+        "pagination": {
+            "showing": "Exibindo",
+            "of": "de",
+            "items": "items"
+        },
         "menu": {
             "home": "Início",
             "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
